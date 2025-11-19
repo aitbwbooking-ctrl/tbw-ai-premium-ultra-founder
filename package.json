@@ -1,5 +1,8 @@
 {
   "name": "tbw-ultra",
   "version": "1.0.0",
-  "type": "module"
+  "scripts": {
+    "build": "echo Build step!",
+    "start": "node api/tbw.js"
+  }
 }
