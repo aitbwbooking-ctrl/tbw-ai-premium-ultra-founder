@@ -45,3 +45,4 @@ Na kraju dobiješ:
 
 - web app na Vercel domeni
 - spremno za PWA / WebView / APK generiranje za Android.
+<!-- force redeploy -->
