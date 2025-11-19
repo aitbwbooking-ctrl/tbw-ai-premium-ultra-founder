@@ -6,6 +6,7 @@
   <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <!-- TOP STRIP -->
   <header class="top">
@@ -24,6 +25,7 @@
     <div class="hero-img-wrap">
       <img id="heroImg" alt="TBW pozadina" />
       <div class="hero-overlay"></div>
+
       <div class="hero-ticker">
         <span class="live-dot"></span>
         <span class="live-label">LIVE</span>
@@ -32,18 +34,18 @@
     </div>
 
     <div class="search">
-      <input id="cityInput" type="text" placeholder="Split apartmani" />
+      <input id="cityInput" type="text" placeholder="npr. 'apartmani Split do 50€'" />
       <button id="searchBtn">Traži</button>
       <button id="micBtn" title="Glasovna pretraga">🎤</button>
     </div>
   </section>
 
-  <!-- STATUS BAR -->
+  <!-- BACKEND STATUS -->
   <section class="status-bar">
     <span id="backendStatus" class="status-dot">Provjera backenda…</span>
   </section>
 
-  <!-- CARDS GRID -->
+  <!-- GRID KARTICE -->
   <main class="grid">
 
     <!-- NAVIGACIJA -->
@@ -51,7 +53,7 @@
       <header><h3>Navigacija</h3></header>
       <div class="card-body" id="navBox">
         <div class="nav-fields">
-          <input id="navFrom" type="text" placeholder="Od (prazno = trenutačni grad)" />
+          <input id="navFrom" type="text" placeholder="Od (prazno = trenutačna lokacija)" />
           <input id="navTo" type="text" placeholder="Do (grad, adresa…)" />
           <button id="navGo">Kreni</button>
           <button id="navVoice" title="Glasovne upute">🔊</button>
@@ -64,18 +66,10 @@
     <article class="card xl" id="cardBooking">
       <header><h3>Rezervacija smještaja</h3></header>
       <div class="card-body" id="bookingBox">
-        <div class="kv">
-          <div>Lokacija</div><strong id="bookCity">Split</strong>
-        </div>
-        <div class="kv">
-          <div>Dolazak</div><strong id="bookDates">danas–sutra</strong>
-        </div>
-        <div class="kv">
-          <div>Maksimum €/noć</div><strong id="bookPrice">50</strong>
-        </div>
-        <div class="kv">
-          <div>Gosti</div><strong>1</strong>
-        </div>
+        <div class="kv"><div>Grad</div><strong id="bookCity">Split</strong></div>
+        <div class="kv"><div>Dolazak</div><strong id="bookDates">danas–sutra</strong></div>
+        <div class="kv"><div>Maks. €/noć</div><strong id="bookPrice">50</strong></div>
+        <div class="kv"><div>Gosti</div><strong>1</strong></div>
         <a id="bookLink" class="btn" target="_blank" rel="noopener">Otvori Booking</a>
       </div>
     </article>
