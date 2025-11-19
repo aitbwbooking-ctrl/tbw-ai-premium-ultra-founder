@@ -293,7 +293,6 @@ function handleSearch() {
   const v = $("#cityInput").value.trim();
   if (!v) return;
 
-  // vrlo jednostavno: prvi "riječ" uzmemo kao grad (npr. "Split apartmani")
   const parts = v.split(" ");
   const guessedCity = parts[0] || v;
   applyCity(guessedCity);
