@@ -1,9 +1,0 @@
-{
-  "name": "tbw-ultra",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "build": "echo OK",
-    "start": "node api/tbw.js"
-  }
-}
