@@ -1,74 +1,32 @@
 body {
-    background: #0e1b25;
-    color: white;
-    font-family: Arial;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+  font-family: Arial;
+  background: #0d1b2a;
+  color: white;
+  text-align: center;
+  padding: 30px;
 }
 
-.hidden { display: none; }
-
-#intro {
-    margin-top: 120px;
-}
-
-#app {
-    margin: 30px;
-}
-
-.search-box {
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+.box {
+  background: #1b263b;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  margin: auto;
 }
 
 input {
-    width: 250px;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
+  width: 70%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
 }
 
 button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background: #1aa3ff;
-    color: white;
-    cursor: pointer;
-}
-
-.card {
-    background: #152735;
-    margin: 10px auto;
-    padding: 20px;
-    width: 350px;
-    border-radius: 10px;
-}
-
-#tiker {
-    margin: 20px auto;
-    background: #06131e;
-    padding: 10px;
-    width: 80%;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    background: #00ff55;
-    border-radius: 50%;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: .4; }
-    100% { opacity: 1; }
+  padding: 10px 20px;
+  margin-left: 10px;
+  border: none;
+  background: #00b4d8;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
 }
