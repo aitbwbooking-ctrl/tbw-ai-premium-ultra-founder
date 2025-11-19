@@ -4,6 +4,7 @@
     { "src": "api/tbw.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/tbw", "dest": "api/tbw.js" }
+    { "src": "/api/tbw", "dest": "api/tbw.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
