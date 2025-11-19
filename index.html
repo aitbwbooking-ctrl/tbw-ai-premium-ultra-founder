@@ -1,40 +1,22 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TBW AI PREMIUM</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TBW AI PREMIUM</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="intro">
-    <h1>TBW AI PREMIUM</h1>
-    <p>Učitavanje aplikacije...</p>
-</div>
+  <h1>TBW AI PREMIUM</h1>
 
-<div id="app" class="hidden">
+  <div class="box">
+      <input id="city-input" placeholder="Upiši grad..." />
+      <button onclick="loadCity()">Traži</button>
+  </div>
 
-    <h1>TBW AI PREMIUM</h1>
+  <div id="output"></div>
 
-    <div class="search-box">
-        <input id="cityInput" type="text" placeholder="Upiši grad..." />
-        <button id="searchBtn">Traži</button>
-    </div>
-
-    <div id="tiker">
-        <span class="dot"></span>
-        <span id="tikerText">LIVE: čekam podatke...</span>
-    </div>
-
-    <div class="card" id="weatherCard">Vrijeme</div>
-    <div class="card" id="forecastCard">3-dnevna prognoza</div>
-    <div class="card" id="airCard">Kvaliteta zraka</div>
-    <div class="card" id="alertsCard">Upozorenja</div>
-    <div class="card" id="extraCard">Ostalo</div>
-
-</div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
