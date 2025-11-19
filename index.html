@@ -1,157 +1,51 @@
-
-
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TBW AI PREMIUM</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- TOP STRIP -->
-  <header class="top">
-    <h1>TBW AI PREMIUM</h1>
-    <nav class="pill">
-      <span>Prometna upozorenja</span>
-      <span>Vrijeme</span>
-      <span>Stanje mora</span>
-      <span>Nesreće</span>
-      <span>Alert !</span>
-    </nav>
-  </header>
 
-  <!-- HERO + TIKER + SEARCH -->
-  <section class="hero">
-    <div class="hero-img-wrap">
-      <img id="heroImg" alt="TBW pozadina" />
-      <div class="hero-overlay"></div>
-      <div class="hero-ticker">
-        <span class="live-dot"></span>
-        <span class="live-label">LIVE</span>
-        <span id="alertTicker">Učitavanje upozorenja…</span>
-      </div>
-    </div>
+<h1>TBW AI PREMIUM</h1>
 
-    <div class="search">
-      <input id="cityInput" type="text" placeholder="Split apartmani" />
-      <button id="searchBtn">Traži</button>
-      <button id="micBtn" title="Glasovna pretraga">🎤</button>
-    </div>
-  </section>
+<main>
+    <section class="searchBox">
+        <label>Odaberi grad:</label>
+        <input id="cityInput" type="text" placeholder="Split, Zagreb, Rijeka..." />
+        <button onclick="loadAll()">Traži</button>
+    </section>
 
-  <!-- STATUS BAR -->
-  <section class="status-bar">
-    <span id="backendStatus" class="status-dot">Provjera backenda…</span>
-  </section>
+    <section class="card">
+        <h3>Vrijeme</h3>
+        <div id="weatherBox"></div>
+    </section>
 
-  <!-- CARDS GRID -->
-  <main class="grid">
+    <section class="card">
+        <h3>Stanje mora</h3>
+        <div id="seaBox"></div>
+    </section>
 
-    <!-- NAVIGACIJA -->
-    <article class="card xl" id="cardNav">
-      <header><h3>Navigacija</h3></header>
-      <div class="card-body" id="navBox">
-        <div class="nav-fields">
-          <input id="navFrom" type="text" placeholder="Od (prazno = trenutačni grad)" />
-          <input id="navTo" type="text" placeholder="Do (grad, adresa…)" />
-          <button id="navGo">Kreni</button>
-          <button id="navVoice" title="Glasovne upute">🔊</button>
-        </div>
-        <div id="navInfo" class="nav-info">Nema aktivne rute.</div>
-      </div>
-    </article>
+    <section class="card">
+        <h3>Navigacija</h3>
+        <div id="navBox"></div>
+    </section>
 
-    <!-- BOOKING -->
-    <article class="card xl" id="cardBooking">
-      <header><h3>Rezervacija smještaja</h3></header>
-      <div class="card-body" id="bookingBox">
-        <div class="kv">
-          <div>Lokacija</div><strong id="bookCity">Split</strong>
-        </div>
-        <div class="kv">
-          <div>Dolazak</div><strong id="bookDates">danas–sutra</strong>
-        </div>
-        <div class="kv">
-          <div>Maksimum €/noć</div><strong id="bookPrice">50</strong>
-        </div>
-        <div class="kv">
-          <div>Gosti</div><strong>1</strong>
-        </div>
-        <a id="bookLink" class="btn" target="_blank" rel="noopener">Otvori Booking</a>
-      </div>
-    </article>
+    <section class="card">
+        <h3>Alerti</h3>
+        <div id="alertBox"></div>
+    </section>
 
-    <!-- VRIJEME -->
-    <article class="card" id="cardWeather">
-      <header><h3>Vrijeme</h3></header>
-      <div class="card-body" id="weatherBox">
-        <div class="big" id="wTemp">--°C</div>
-        <div id="wCond">–</div>
-        <div class="muted" id="wCity">–</div>
-      </div>
-    </article>
+    <section class="card">
+        <h3>Slike</h3>
+        <div id="photoBox"></div>
+    </section>
 
-    <!-- PROMET -->
-    <article class="card" id="cardTraffic">
-      <header><h3>Promet uživo</h3></header>
-      <div class="card-body" id="trafficBox">–</div>
-    </article>
+</main>
 
-    <!-- MORE -->
-    <article class="card" id="cardSea">
-      <header><h3>Stanje mora</h3></header>
-      <div class="card-body" id="seaBox">–</div>
-    </article>
+<footer>© 2025 TBW AI PREMIUM</footer>
 
-    <!-- AERODROMI -->
-    <article class="card" id="cardAirport">
-      <header><h3>Aerodromi</h3></header>
-      <div class="card-body" id="airportBox">–</div>
-    </article>
-
-    <!-- SERVISI -->
-    <article class="card" id="cardServices">
-      <header><h3>Servisi</h3></header>
-      <div class="card-body" id="servicesBox">–</div>
-    </article>
-
-    <!-- JAVNI PRIJEVOZ -->
-    <article class="card" id="cardTransit">
-      <header><h3>Javni prijevoz</h3></header>
-      <div class="card-body" id="transitBox">–</div>
-    </article>
-
-    <!-- HITNE SLUŽBE -->
-    <article class="card" id="cardEmergency">
-      <header><h3>Hitne službe</h3></header>
-      <div class="card-body" id="emergencyBox">–</div>
-    </article>
-
-    <!-- RDS ALARMI -->
-    <article class="card" id="cardAlerts">
-      <header><h3>RDS alarmi</h3></header>
-      <div class="card-body" id="alertsBox">–</div>
-    </article>
-
-    <!-- ZNAMENITOSTI -->
-    <article class="card" id="cardLandmarks">
-      <header><h3>Znamenitosti</h3></header>
-      <div class="card-body" id="landmarksBox">–</div>
-    </article>
-
-    <!-- SLIKE -->
-    <article class="card" id="cardPhotos">
-      <header><h3>Slike</h3></header>
-      <div class="card-body" id="photosBox">–</div>
-    </article>
-
-  </main>
-
-  <footer class="foot">© 2025 TBW AI PREMIUM – Founder mode</footer>
-
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
-Small update to trigger redeploy
