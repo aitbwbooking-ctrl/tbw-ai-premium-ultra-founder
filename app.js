@@ -1,227 +1,117 @@
-// TBW AI PREMIUM — FRONTEND ULTRA
-// Radi s jednim backend endpointom: /api/tbw
+// =========================================
+// TBW AI PREMIUM – FRONTEND
+// =========================================
 
 const API_BASE = "/api/tbw";
-let currentCity = "Split";
 
-// ---------------- HERO FALLBACKS ----------------
-const HERO_FALLBACKS = [
-  "https://images.unsplash.com/photo-1505853085567-b58d89ba3e23?w=1200",
-  "https://images.unsplash.com/photo-1493558103817-58b6727a0408?w=1200",
-  "https://images.unsplash.com/photo-1521545397978-5ea2c6688880?w=1200"
-];
-
-// ---------------- HELPERS ----------------
-const $ = (sel) => document.querySelector(sel);
-
-// *** FIXED VERSION – OVO JE KLJUČNI DIO ***
+// Universal function to call backend
 async function callAPI(route, params = {}) {
-  const url = new URL(API_BASE, window.location.origin);
+    const url = new URL(API_BASE, window.location.origin);
+    url.searchParams.set("route", route);
 
-  url.searchParams.set("route", route);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    for (const key in params) {
+        url.searchParams.set(key, params[key]);
+    }
 
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: { "Content-Type": "application/json" }
-  });
-
-  if (!res.ok) throw new Error("HTTP " + res.status);
-
-  return await res.json();
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error(`API Error ${res.status}`);
+    }
+    return res.json();
 }
 
-function randomHero() {
-  return HERO_FALLBACKS[Math.floor(Math.random() * HERO_FALLBACKS.length)];
-}
+// =========================================
+// LOADERS
+// =========================================
 
-// ---------------- HERO IMAGE + TIKER ----------------
-async function loadHero(city) {
-  try {
-    const data = await callAPI("hero", { city });
-    $("#heroImg").src = data.images?.[0] || randomHero();
-  } catch {
-    $("#heroImg").src = randomHero();
-  }
-}
-
-async function loadTicker() {
-  try {
-    const data = await callAPI("alerts", { city: currentCity });
-    $("#alertTicker").textContent = data.alert || "Nema upozorenja.";
-  } catch {
-    $("#alertTicker").textContent = "Greška pri učitavanju upozorenja.";
-  }
-}
-
-// Auto-refresh ticker svakih 60s
-setInterval(loadTicker, 60000);
-
-// ---------------- NAVIGACIJA ----------------
-async function loadRoute() {
-  const from = $("#navFrom").value || currentCity;
-  const to = $("#navTo").value || "";
-
-  if (!to.trim()) {
-    $("#navInfo").textContent = "Unesi odredište...";
-    return;
-  }
-
-  try {
-    const data = await callAPI("route", { from, to });
-    $("#navInfo").textContent = `${data.distance} – ${data.duration}`;
-  } catch {
-    $("#navInfo").textContent = "Greška u navigaciji.";
-  }
-}
-
-$("#navGo").onclick = loadRoute;
-
-// ---------------- BOOKING ----------------
-async function loadBooking(city) {
-  try {
-    const data = await callAPI("booking", { city });
-    $("#bookCity").textContent = data.city;
-    $("#bookDates").textContent = data.dates;
-    $("#bookPrice").textContent = data.price;
-    $("#bookLink").href = data.url;
-  } catch {
-    $("#bookingBox").innerHTML = "Greška.";
-  }
-}
-
-// ---------------- WEATHER ----------------
 async function loadWeather(city) {
-  try {
-    const data = await callAPI("weather", { city });
-    $("#wTemp").textContent = data.temp + "°C";
-    $("#wCond").textContent = data.condition;
-    $("#wCity").textContent = city;
-  } catch {
-    $("#wTemp").textContent = "-";
-    $("#wCond").textContent = "Greška";
-  }
+    const box = document.getElementById("weatherBox");
+    box.innerHTML = "Učitavam...";
+
+    try {
+        const data = await callAPI("weather", { city });
+        box.innerHTML = `
+            <p>🌡️ Temp: ${data.temp}°C</p>
+            <p>${data.description}</p>
+            <p>💨 Vjetar: ${data.wind} km/h</p>
+        `;
+    } catch {
+        box.innerHTML = "Greška kod vremena.";
+    }
 }
 
-// ---------------- TRAFFIC ----------------
-async function loadTraffic(city) {
-  try {
-    const data = await callAPI("traffic", { city });
-    $("#trafficBox").textContent = data.status;
-  } catch {
-    $("#trafficBox").textContent = "Greška.";
-  }
-}
-
-// ---------------- SEA ----------------
 async function loadSea(city) {
-  try {
-    const data = await callAPI("sea", { city });
-    $("#seaBox").textContent = data.state;
-  } catch {
-    $("#seaBox").textContent = "Greška.";
-  }
+    const box = document.getElementById("seaBox");
+    box.innerHTML = "Učitavam...";
+
+    try {
+        const data = await callAPI("sea", { city });
+        box.innerHTML = `
+            <p>🌊 Temperatura mora: ${data.seaTemp}°C</p>
+            <p>🌬️ Valovi: ${data.waves}</p>
+        `;
+    } catch {
+        box.innerHTML = "Greška kod mora.";
+    }
 }
 
-// ---------------- AIRPORT ----------------
-async function loadAirport(city) {
-  try {
-    const data = await callAPI("airport", { city });
-    $("#airportBox").textContent = data.status;
-  } catch {
-    $("#airportBox").textContent = "Greška.";
-  }
+async function loadNavigation(city) {
+    const box = document.getElementById("navBox");
+    box.innerHTML = "Učitavam...";
+
+    try {
+        const data = await callAPI("nav", { city });
+        box.innerHTML = `
+            <p>🚘 Rute: ${data.routes}</p>
+            <p>⏱️ Vrijeme: ${data.time}</p>
+        `;
+    } catch {
+        box.innerHTML = "Greška kod navigacije.";
+    }
 }
 
-// ---------------- SERVICES ----------------
-async function loadServices(city) {
-  try {
-    const data = await callAPI("services", { city });
-    $("#servicesBox").textContent = data.list.join(", ");
-  } catch {
-    $("#servicesBox").textContent = "Greška.";
-  }
-}
-
-// ---------------- EMERGENCY ----------------
-async function loadEmergency(city) {
-  try {
-    const data = await callAPI("emergency", { city });
-    $("#emergencyBox").textContent = data.status;
-  } catch {
-    $("#emergencyBox").textContent = "Greška.";
-  }
-}
-
-// ---------------- TRANSIT ----------------
-async function loadTransit(city) {
-  try {
-    const data = await callAPI("transit", { city });
-    $("#transitBox").textContent = data.status;
-  } catch {
-    $("#transitBox").textContent = "Greška.";
-  }
-}
-
-// ---------------- ALERTS ----------------
 async function loadAlerts(city) {
-  try {
-    const data = await callAPI("alerts", { city });
-    $("#alertsBox").textContent = data.alert;
-  } catch {
-    $("#alertsBox").textContent = "Greška.";
-  }
+    const box = document.getElementById("alertBox");
+    box.innerHTML = "Učitavam...";
+
+    try {
+        const data = await callAPI("alerts", { city });
+        box.innerHTML = `<p>${data.alerts}</p>`;
+    } catch {
+        box.innerHTML = "Greška kod upozorenja.";
+    }
 }
 
-// ---------------- LANDMARKS ----------------
-async function loadLandmarks(city) {
-  try {
-    const data = await callAPI("landmarks", { city });
-    $("#landmarksBox").textContent = data.list.join(", ");
-  } catch {
-    $("#landmarksBox").textContent = "Greška.";
-  }
-}
-
-// ---------------- PHOTOS ----------------
 async function loadPhotos(city) {
-  try {
-    const data = await callAPI("photos", { city });
-    $("#photosBox").innerHTML = data.images
-      .map((img) => `<img src="${img}" class="photo-thumb">`)
-      .join("");
-  } catch {
-    $("#photosBox").textContent = "Greška.";
-  }
+    const box = document.getElementById("photoBox");
+    box.innerHTML = "Učitavam...";
+
+    try {
+        const data = await callAPI("photos", { city });
+
+        box.innerHTML = `
+            <img src="${data.photo}" style="width:100%;border-radius:10px;" />
+        `;
+    } catch {
+        box.innerHTML = "Greška kod slika.";
+    }
 }
 
-// ---------------- SEARCH ----------------
-$("#searchBtn").onclick = async () => {
-  const city = $("#cityInput").value.trim();
-  if (!city) return;
+// =========================================
+// MASTER FUNCTION — loads everything
+// =========================================
 
-  currentCity = city;
+async function loadAll() {
+    const city = document.getElementById("cityInput").value.trim();
 
-  loadEverything();
-};
+    if (!city) {
+        alert("Unesi grad!");
+        return;
+    }
 
-// ---------------- LOAD ALL SECTIONS ----------------
-function loadEverything() {
-  loadHero(currentCity);
-  loadTicker();
-  loadBooking(currentCity);
-  loadWeather(currentCity);
-  loadTraffic(currentCity);
-  loadSea(currentCity);
-  loadAirport(currentCity);
-  loadServices(currentCity);
-  loadEmergency(currentCity);
-  loadTransit(currentCity);
-  loadAlerts(currentCity);
-  loadLandmarks(currentCity);
-  loadPhotos(currentCity);
+    loadWeather(city);
+    loadSea(city);
+    loadNavigation(city);
+    loadAlerts(city);
+    loadPhotos(city);
 }
-
-// INIT
-loadEverything();
-loadTicker();
