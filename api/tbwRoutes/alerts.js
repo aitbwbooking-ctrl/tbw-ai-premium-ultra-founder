@@ -1,0 +1,12 @@
+import { send, error } from "./_helpers.js";
+
+export default async function handler(req, res) {
+  try {
+    return send(res, {
+      alerts: ["Nema opasnosti", "Sve uredno"]
+    });
+  }
+  catch (err) {
+    return error(res, err.message);
+  }
+}
