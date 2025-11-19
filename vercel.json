@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "src": "/api/tbw",
+      "dest": "/api/tbw.js"
+    }
+  ]
+}
