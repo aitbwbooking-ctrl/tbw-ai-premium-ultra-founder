@@ -1,22 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TBW AI PREMIUM</title>
-<link rel="stylesheet" href="style.css" />
-</head>
-<body>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- HEADER -->
+      <header class="app-header">
+        <div>
+          <h1>TBW AI PREMIUM</h1>
+          <p class="subtitle">
+            Pametni AI navigator za gradove, putovanja i sigurnost u stvarnom vremenu.
+          </p>
+        </div>
+        <div class="badge-pill">Founder mode</div>
+      </header>
 
-<h1>TBW AI PREMIUM</h1>
+      <!-- HERO + TICKER -->
+      <section class="hero">
+        <div class="hero-image-wrapper">
+          <img id="heroImg" src="" alt="TBW pozadina" />
+          <div class="hero-overlay">
+            <h2 id="heroCity">Split</h2>
+            <p>Personalizirane preporuke, statusi i upozorenja za tvoj grad.</p>
+          </div>
+        </div>
+      </section>
 
-<div class="box">
-    <input id="city-input" placeholder="Upiši grad..." />
-    <button onclick="loadCity()">Traži</button>
-</div>
+      <section class="ticker">
+        <span class="ticker-label">LIVE</span>
+        <span id="alertTicker">Učitavanje upozorenja...</span>
+      </section>
 
-<div id="output"></div>
+      <!-- SEARCH + NAVIGACIJA -->
+      <section class="grid grid-2">
+        <!-- Odabir grada -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Odaberi grad</h3>
+          </header>
+          <div class="card-body">
+            <div class="input-row">
+              <input
+                id="cityInput"
+                type="text"
+                placeholder="Unesi grad (npr. Split, Zagreb, Zadar...)"
+              />
+              <button id="searchBtn">Traži</button>
+            </div>
+            <p class="hint">
+              Sav sadržaj ispod prilagođava se odabranom gradu.
+            </p>
+          </div>
+        </article>
 
-<script src="app.js"></script>
-</body>
+        <!-- Navigacija -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Navigacija</h3>
+          </header>
+          <div class="card-body">
+            <div class="input-row">
+              <input id="navFrom" type="text" placeholder="Polazište" />
+              <input id="navTo" type="text" placeholder="Odredište" />
+              <button id="navGo">Ruta</button>
+            </div>
+            <div id="navInfo" class="small-output">
+              Unesi polazište i odredište za okvirnu rutu.
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- GLAVNI GRID: vrijeme, more, promet, booking -->
+      <section class="grid grid-3">
+        <!-- VRIJEME -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Vrijeme</h3>
+          </header>
+          <div class="card-body" id="weatherBox">
+            <div class="weather-main">
+              <span id="wTemp" class="big-number">--°C</span>
+              <span id="wCond" class="label">Učitavanje...</span>
+            </div>
+            <p class="muted">
+              Lokacija: <span id="wCity">–</span>
+            </p>
+          </div>
+        </article>
+
+        <!-- STANJE MORA -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Stanje mora</h3>
+          </header>
+          <div class="card-body">
+            <div id="seaBox" class="small-output">
+              Učitavanje podataka o moru...
+            </div>
+          </div>
+        </article>
+
+        <!-- PROMET -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Promet</h3>
+          </header>
+          <div class="card-body">
+            <div id="trafficBox" class="small-output">
+              Učitavanje prometa...
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- BOOKING + AIRPORT + JAVNI PRIJEVOZ -->
+      <section class="grid grid-3">
+        <!-- BOOKING -->
+        <article class="card" id="bookingBox">
+          <header class="card-header">
+            <h3>Smještaj (TBW Booking AI)</h3>
+          </header>
+          <div class="card-body">
+            <p>
+              Grad: <strong id="bookCity">–</strong>
+            </p>
+            <p>
+              Datumi: <span id="bookDates">–</span>
+            </p>
+            <p>
+              Okvirna cijena: <strong id="bookPrice">–</strong>
+            </p>
+            <a id="bookLink" href="#" target="_blank" class="link-button">
+              Otvori preporuku
+            </a>
+          </div>
+        </article>
+
+        <!-- AERODROM -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Zračna luka</h3>
+          </header>
+          <div class="card-body">
+            <div id="airportBox" class="small-output">
+              Učitavanje statusa letova...
+            </div>
+          </div>
+        </article>
+
+        <!-- JAVNI PRIJEVOZ -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Javni prijevoz</h3>
+          </header>
+          <div class="card-body">
+            <div id="transitBox" class="small-output">
+              Učitavanje linija i kašnjenja...
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- SIGURNOST + SERVISI + ALERTI -->
+      <section class="grid grid-3">
+        <!-- Hitne službe -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Sigurnost i hitne službe</h3>
+          </header>
+          <div class="card-body">
+            <div id="emergencyBox" class="small-output">
+              Učitavanje informacija...
+            </div>
+          </div>
+        </article>
+
+        <!-- Servisi -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Servisi i korisne adrese</h3>
+          </header>
+          <div class="card-body">
+            <div id="servicesBox" class="small-output">
+              Učitavanje servisa...
+            </div>
+          </div>
+        </article>
+
+        <!-- ALERTI po gradu -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Alerti po gradu</h3>
+          </header>
+          <div class="card-body">
+            <div id="alertsBox" class="small-output">
+              Učitavanje upozorenja za grad...
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- LANDMARKS + FOTKE -->
+      <section class="grid grid-2">
+        <!-- ZNAMENITOSTI -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Znamenitosti</h3>
+          </header>
+          <div class="card-body">
+            <div id="landmarksBox" class="small-output">
+              Učitavanje znamenitosti...
+            </div>
+          </div>
+        </article>
+
+        <!-- FOTKE -->
+        <article class="card">
+          <header class="card-header">
+            <h3>Fotografije</h3>
+          </header>
+          <div class="card-body photos-body" id="photosBox">
+            Učitavanje fotografija...
+          </div>
+        </article>
+      </section>
+
+      <footer class="app-footer">
+        © 2025 TBW AI PREMIUM – Travel Navigator ULTRA (Founder mode)
+      </footer>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
 </html>
