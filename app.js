@@ -1,117 +1,87 @@
-// =========================================
-// TBW AI PREMIUM – FRONTEND
-// =========================================
+// =======================
+// TBW — FRONTEND ULTRA
+// =======================
 
-const API_BASE = "/api/tbw";
+const API_URL = "/api/tbw";
+let currentCity = "Split";
 
-// Universal function to call backend
-async function callAPI(route, params = {}) {
-    const url = new URL(API_BASE, window.location.origin);
-    url.searchParams.set("route", route);
+// -----------------------
+// INTRO
+// -----------------------
+window.onload = () => {
+    setTimeout(() => {
+        document.getElementById("intro").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+    }, 1500);
+};
 
-    for (const key in params) {
-        url.searchParams.set(key, params[key]);
-    }
-
+// -----------------------
+// FETCH FUNKCIJA
+// -----------------------
+async function callTBW(route, city) {
+    const url = `${API_URL}?route=${route}&city=${city}`;
     const res = await fetch(url);
-    if (!res.ok) {
-        throw new Error(`API Error ${res.status}`);
-    }
-    return res.json();
+    return await res.json();
 }
 
-// =========================================
-// LOADERS
-// =========================================
-
-async function loadWeather(city) {
-    const box = document.getElementById("weatherBox");
-    box.innerHTML = "Učitavam...";
-
+// -----------------------
+// TIKER (svakih 60 sek)
+// -----------------------
+async function loadTiker() {
     try {
-        const data = await callAPI("weather", { city });
-        box.innerHTML = `
-            <p>🌡️ Temp: ${data.temp}°C</p>
-            <p>${data.description}</p>
-            <p>💨 Vjetar: ${data.wind} km/h</p>
-        `;
+        const data = await callTBW("alerts", currentCity);
+        document.getElementById("tikerText").textContent =
+            data?.alerts?.join(", ") || "Nema upozorenja";
     } catch {
-        box.innerHTML = "Greška kod vremena.";
+        document.getElementById("tikerText").textContent = "Greška pri dohvaćanju tikera";
     }
 }
 
-async function loadSea(city) {
-    const box = document.getElementById("seaBox");
-    box.innerHTML = "Učitavam...";
+setInterval(loadTiker, 60000);
 
-    try {
-        const data = await callAPI("sea", { city });
-        box.innerHTML = `
-            <p>🌊 Temperatura mora: ${data.seaTemp}°C</p>
-            <p>🌬️ Valovi: ${data.waves}</p>
-        `;
-    } catch {
-        box.innerHTML = "Greška kod mora.";
-    }
+// -----------------------
+// KLIK NA TRAŽI
+// -----------------------
+document.getElementById("searchBtn").addEventListener("click", async () => {
+    const c = document.getElementById("cityInput").value.trim();
+    if (!c) return;
+
+    currentCity = c;
+    loadAll(c);
+});
+
+// -----------------------
+// SVE KARTICE
+// -----------------------
+async function loadAll(city) {
+
+    // VRIJEME
+    callTBW("weather", city).then(d => {
+        document.getElementById("weatherCard").textContent =
+            `Vrijeme: ${d.temp}°C, ${d.desc}`;
+    });
+
+    // PROGNOZA
+    callTBW("forecast", city).then(d => {
+        document.getElementById("forecastCard").textContent =
+            `Prognoza: ${d.join(" | ")}`;
+    });
+
+    // ZRAK
+    callTBW("air", city).then(d => {
+        document.getElementById("airCard").textContent =
+            `AQI: ${d.aqi} (${d.desc})`;
+    });
+
+    // ALERTS
+    loadTiker();
+
+    // OSTALO
+    callTBW("extra", city).then(d => {
+        document.getElementById("extraCard").textContent =
+            d.text || "Nema podataka";
+    });
 }
 
-async function loadNavigation(city) {
-    const box = document.getElementById("navBox");
-    box.innerHTML = "Učitavam...";
-
-    try {
-        const data = await callAPI("nav", { city });
-        box.innerHTML = `
-            <p>🚘 Rute: ${data.routes}</p>
-            <p>⏱️ Vrijeme: ${data.time}</p>
-        `;
-    } catch {
-        box.innerHTML = "Greška kod navigacije.";
-    }
-}
-
-async function loadAlerts(city) {
-    const box = document.getElementById("alertBox");
-    box.innerHTML = "Učitavam...";
-
-    try {
-        const data = await callAPI("alerts", { city });
-        box.innerHTML = `<p>${data.alerts}</p>`;
-    } catch {
-        box.innerHTML = "Greška kod upozorenja.";
-    }
-}
-
-async function loadPhotos(city) {
-    const box = document.getElementById("photoBox");
-    box.innerHTML = "Učitavam...";
-
-    try {
-        const data = await callAPI("photos", { city });
-
-        box.innerHTML = `
-            <img src="${data.photo}" style="width:100%;border-radius:10px;" />
-        `;
-    } catch {
-        box.innerHTML = "Greška kod slika.";
-    }
-}
-
-// =========================================
-// MASTER FUNCTION — loads everything
-// =========================================
-
-async function loadAll() {
-    const city = document.getElementById("cityInput").value.trim();
-
-    if (!city) {
-        alert("Unesi grad!");
-        return;
-    }
-
-    loadWeather(city);
-    loadSea(city);
-    loadNavigation(city);
-    loadAlerts(city);
-    loadPhotos(city);
-}
+// PRVO UČITANJE
+loadAll(currentCity);
