@@ -1,50 +1,39 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TBW AI PREMIUM</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>TBW AI PREMIUM</h1>
+<div id="intro">
+    <h1>TBW AI PREMIUM</h1>
+    <p>Učitavanje aplikacije...</p>
+</div>
 
-<main>
-    <section class="searchBox">
-        <label>Odaberi grad:</label>
-        <input id="cityInput" type="text" placeholder="Split, Zagreb, Rijeka..." />
-        <button onclick="loadAll()">Traži</button>
-    </section>
+<div id="app" class="hidden">
 
-    <section class="card">
-        <h3>Vrijeme</h3>
-        <div id="weatherBox"></div>
-    </section>
+    <h1>TBW AI PREMIUM</h1>
 
-    <section class="card">
-        <h3>Stanje mora</h3>
-        <div id="seaBox"></div>
-    </section>
+    <div class="search-box">
+        <input id="cityInput" type="text" placeholder="Upiši grad..." />
+        <button id="searchBtn">Traži</button>
+    </div>
 
-    <section class="card">
-        <h3>Navigacija</h3>
-        <div id="navBox"></div>
-    </section>
+    <div id="tiker">
+        <span class="dot"></span>
+        <span id="tikerText">LIVE: čekam podatke...</span>
+    </div>
 
-    <section class="card">
-        <h3>Alerti</h3>
-        <div id="alertBox"></div>
-    </section>
+    <div class="card" id="weatherCard">Vrijeme</div>
+    <div class="card" id="forecastCard">3-dnevna prognoza</div>
+    <div class="card" id="airCard">Kvaliteta zraka</div>
+    <div class="card" id="alertsCard">Upozorenja</div>
+    <div class="card" id="extraCard">Ostalo</div>
 
-    <section class="card">
-        <h3>Slike</h3>
-        <div id="photoBox"></div>
-    </section>
-
-</main>
-
-<footer>© 2025 TBW AI PREMIUM</footer>
+</div>
 
 <script src="app.js"></script>
 </body>
