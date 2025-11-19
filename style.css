@@ -1,160 +1,52 @@
 body {
-  margin: 0;
-  background: #070b16;
-  color: #dff;
-  font-family: "Segoe UI", sans-serif;
+    background: #0d1b2a;
+    color: white;
+    font-family: Arial;
+    margin: 0;
+    padding: 0;
 }
 
-h1, h3 { margin: 0; }
-
-/* ---------- TOP AREA ---------- */
-
-.top {
-  text-align: center;
-  padding: 18px 0 5px;
+h1 {
+    text-align: center;
+    padding: 20px;
+    color: #8be9fd;
 }
 
-.top h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #75f2ff;
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
 }
 
-.pill {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0.75;
+.searchBox {
+    background: #1b263b;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.pill span {
-  font-size: 14px;
+input {
+    width: 70%;
+    padding: 10px;
 }
 
-/* ---------- HERO ---------- */
-
-.hero {
-  width: 100%;
-  max-width: 900px;
-  margin: 20px auto;
-}
-
-.hero-img-wrap {
-  position: relative;
-  width: 100%;
-  height: 170px;
-  overflow: hidden;
-  border-radius: 20px;
-}
-
-.hero-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.85);
-}
-
-/* Overlay dark */
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4));
-}
-
-/* TICKER */
-.hero-ticker {
-  position: absolute;
-  bottom: 6px;
-  left: 12px;
-  right: 12px;
-  padding: 6px 10px;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
-  border-radius: 10px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.live-dot {
-  width: 10px;
-  height: 10px;
-  background: #0f0;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.5); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.7; }
-}
-
-.live-label {
-  color: #0f0;
-  font-weight: bold;
-}
-
-/* ---------- SEARCH ---------- */
-
-.search {
-  margin-top: 15px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.search input {
-  width: 60%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: none;
-  outline: none;
-  background: #111a28;
-  color: #cff;
-}
-
-.search button {
-  padding: 10px 16px;
-  border-radius: 14px;
-  border: none;
-  background: #00c8ff;
-  color: #003;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* ---------- GRID ---------- */
-
-.grid {
-  max-width: 900px;
-  margin: 25px auto;
-  display: grid;
-  gap: 20px;
+button {
+    padding: 10px 20px;
+    background: #00b4d8;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 .card {
-  background: #0e1624;
-  padding: 16px;
-  border-radius: 18px;
-  box-shadow: 0 0 14px #000;
+    background: #1b263b;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
 }
 
-.card.xl {
-  grid-column: span 2;
-}
-
-.card h3 {
-  margin-bottom: 10px;
-}
-
-/* ---------- FOOTER ---------- */
-
-.foot {
-  text-align: center;
-  padding: 40px 0;
-  font-size: 14px;
-  opacity: 0.5;
+footer {
+    text-align: center;
+    padding: 20px;
+    opacity: 0.7;
 }
