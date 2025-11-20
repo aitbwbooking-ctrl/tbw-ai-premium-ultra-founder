@@ -1,241 +1,296 @@
 <!DOCTYPE html>
 <html lang="hr">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
     <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
 
+    <!-- Glavni CSS -->
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Ikona aplikacije -->
+    <!-- Ikona app-a (po želji promijeni putanju) -->
     <link rel="icon" type="image/png" href="/icon-owl.png" />
-</head>
 
-<body>
-
-<!-- ███████████████████████████████████████████ -->
-<!--                APP SHELL                    -->
-<!-- ███████████████████████████████████████████ -->
-
-<div class="app-shell">
-
-    <!-- ██████████████████████████████████ -->
-    <!--             FIXNI HEADER           -->
-    <!-- ██████████████████████████████████ -->
-
-    <header class="app-header">
-
-        <!-- NASLOV / LOGO / FOUNDER MOD -->
-        <div class="app-title-row" id="title-press-area">
-            <div class="app-logo-circle">
-                <span class="logo-icon">🦅</span>
+    <!-- GOOGLE MAPS JS API (Street View) – OBAVEZNO zamijeni KEY -->
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=REPLACE_WITH_YOUR_GOOGLE_MAPS_JS_API_KEY&libraries=places&callback=initStreetViewMap"
+    ></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Gornji fiksni dio: naslov + nav + ticker + hero + street view + glavna tražilica -->
+      <header class="app-header">
+        <!-- NASLOV + FOUNDER MODE BADGE -->
+        <div class="app-title-row">
+          <div class="app-logo-circle">
+            <span class="logo-icon">🦅</span>
+          </div>
+          <div class="app-title-block">
+            <div class="app-title">TBW AI PREMIUM</div>
+            <div class="app-subtitle">
+              Prometna upozorenja · Vrijeme · Stanje mora · Nesreće · Alert !
             </div>
-            <div class="app-title-block">
-                <div class="app-title">TBW AI PREMIUM</div>
-                <div class="app-subtitle">AI Travel · Navigation · Live Cameras</div>
-            </div>
-            <div class="founder-switch">FOUNDER</div>
+          </div>
+
+          <div class="founder-switch" id="founder-switch">
+            <span class="founder-label">FOUNDER MODE</span>
+          </div>
         </div>
 
-        <!-- ███████████ TIKER – NONSTOP LIVE ███████████ -->
+        <!-- LIVE TICKER -->
         <div class="ticker-bar">
-            <span class="ticker-dot live"></span>
-            <span class="ticker-label">LIVE</span>
-            <div class="ticker-strip-wrapper">
-                <div id="ticker-strip" class="ticker-strip">
-                    Loading alerts...
-                </div>
+          <span class="ticker-dot live"></span>
+          <span class="ticker-label">LIVE</span>
+          <div class="ticker-strip-wrapper">
+            <div id="ticker-strip" class="ticker-strip">
+              Učitavanje obavijesti...
             </div>
+          </div>
         </div>
 
-        <!-- ███████████ HERO (LIVE CAMERA / UNSPLASH) ███████████ -->
-
+        <!-- HERO + STREET VIEW PROZOR (hero slika / live kamera + mini street view) -->
         <div class="hero-wrapper">
+          <div class="hero-image-layer">
+            <!--
+              Ovu sliku će app.js mijenjati:
+              - ako postoji live kamera → možeš kasnije zamijeniti za <video> / <iframe>
+              - ako nema kamere → Unsplash fallback
+            -->
+            <img
+              id="hero-image"
+              src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600"
+              alt="TBW hero"
+            />
+          </div>
 
-            <!-- HERO VIDEO (LIVE CAMERA) -->
-            <div id="hero-live" class="hero-live hidden">
-                <video id="hero-live-video" autoplay muted playsinline></video>
+          <!-- Street View mini prozor u donjem desnom kutu hero slike -->
+          <div id="streetview-shell" class="streetview-shell">
+            <div class="streetview-header">
+              <span>Street View</span>
+              <button
+                id="streetview-toggle"
+                type="button"
+                class="streetview-toggle"
+              >
+                ⤢
+              </button>
             </div>
-
-            <!-- HERO SNAPSHOT (LIVE IMAGE) -->
-            <img id="hero-snapshot" class="hero-snapshot hidden" />
-
-            <!-- HERO IMAGE (UNSPLASH FALLBACK) -->
-            <img id="hero-fallback" class="hero-fallback hidden"
-                 src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600" />
-
+            <div id="streetview-container" class="streetview-container"></div>
+          </div>
         </div>
 
-        <!-- █████████████ GLAVNA TRAŽILICA █████████████ -->
+        <!-- GLAVNA TRAŽILICA (fiksna ispod hero-a) -->
         <div class="main-search-wrap">
-            <input id="main-query" type="text" class="main-search-input"
-                   placeholder="Where are you going?" autocomplete="off" />
-
-            <button id="voice-toggle" type="button" class="icon-button">🎙</button>
-            <button id="search-btn" type="button" class="search-button">Search</button>
+          <input
+            id="main-query"
+            type="text"
+            class="main-search-input"
+            placeholder="Split apartmani"
+            autocomplete="off"
+          />
+          <button id="voice-toggle" type="button" class="icon-button">
+            🎙
+          </button>
+          <button id="search-btn" type="button" class="search-button">
+            Traži
+          </button>
         </div>
 
-        <!-- Trial info -->
+        <!-- Trial / premium info -->
         <div class="trial-info" id="trial-info"></div>
+      </header>
 
-    </header>
-
-    <!-- ███████████████████████████████████ -->
-    <!--            KARTICE (GRID)           -->
-    <!-- ███████████████████████████████████ -->
-
-    <main class="cards-scroll">
-
+      <!-- SCROLLABLE GRID KARTICA (sve ispod headera se skrola gore/dolje) -->
+      <main class="cards-scroll">
         <section class="cards-grid">
+          <!-- PRVI RED: NAVIGACIJA + SMJEŠTAJ (ključne za monetizaciju) -->
+          <article class="card nav-card">
+            <header class="card-header">
+              <h2>Navigacija</h2>
+              <small id="nav-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <label class="field-label">Od (grad / adresa)</label>
+              <input
+                id="nav-from"
+                type="text"
+                class="card-input"
+                placeholder="Trenutna lokacija ili grad"
+              />
+              <label class="field-label">Do (grad / adresa)</label>
+              <input
+                id="nav-to"
+                type="text"
+                class="card-input"
+                placeholder="Npr. Split centar"
+              />
+              <div class="card-actions">
+                <button id="nav-btn" type="button" class="primary-btn">
+                  Ruta
+                </button>
+                <button id="nav-gmaps-btn" type="button" class="ghost-btn">
+                  Otvori u Google Maps
+                </button>
+              </div>
+              <div id="nav-output" class="card-output">
+                Upiši polazište i odredište za rutu.
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 1) NAVIGACIJA ███ -->
-            <article class="card" data-card="navigation">
-                <header class="card-header">
-                    <h2 data-i18n="nav_title">Navigacija</h2>
-                    <small id="nav-city-label">–</small>
-                </header>
+          <article class="card booking-card">
+            <header class="card-header">
+              <h2>Rezervacija smještaja</h2>
+              <small id="booking-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="booking-output" class="card-output">
+                Učitavanje preporuka za smještaj...
+              </div>
+              <button id="booking-btn" type="button" class="primary-btn full">
+                Otvori Booking
+              </button>
+            </div>
+          </article>
 
-                <div class="card-body">
-                    <label class="field-label">Od</label>
-                    <input id="nav-from" type="text" class="card-input" placeholder="Start city" />
+          <!-- DRUGI RED: VRIJEME, PROMET, AERODROMI -->
+          <article class="card">
+            <header class="card-header">
+              <h2>Vrijeme</h2>
+              <small id="weather-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="weather-output" class="card-output">
+                Učitavanje vremenske prognoze...
+              </div>
+            </div>
+          </article>
 
-                    <label class="field-label">Do</label>
-                    <input id="nav-to" type="text" class="card-input" placeholder="Destination" />
+          <article class="card">
+            <header class="card-header">
+              <h2>Promet uživo</h2>
+              <small id="traffic-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="traffic-output" class="card-output">
+                Učitavanje podataka o prometu...
+              </div>
+            </div>
+          </article>
 
-                    <div class="card-actions">
-                        <button id="nav-btn" class="primary-btn">Ruta</button>
-                        <button id="nav-gmaps-btn" class="ghost-btn">Google Maps</button>
-                    </div>
+          <article class="card">
+            <header class="card-header">
+              <h2>Aerodromi</h2>
+              <small id="airport-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="airport-output" class="card-output">
+                Učitavanje informacija o letovima...
+              </div>
+            </div>
+          </article>
 
-                    <div id="nav-output" class="card-output">
-                        Enter cities to calculate route.
-                    </div>
-                </div>
-            </article>
+          <!-- TREĆI RED: ALARMI, SERVISI, HITNE SLUŽBE -->
+          <article class="card">
+            <header class="card-header">
+              <h2>Alarmi</h2>
+              <small id="alerts-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="alerts-output" class="card-output">
+                Učitavanje sigurnosnih upozorenja...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 2) BOOKING ███ -->
-            <article class="card" data-card="booking">
-                <header class="card-header">
-                    <h2 data-i18n="booking_title">Smještaj</h2>
-                    <small id="booking-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="booking-output" class="card-output">
-                        Loading accommodation...
-                    </div>
-                    <button id="booking-btn" class="primary-btn full">
-                        Booking.com →
-                    </button>
-                </div>
-            </article>
+          <article class="card">
+            <header class="card-header">
+              <h2>Servisi</h2>
+              <small id="services-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="services-output" class="card-output">
+                Učitavanje servisa i 24/7 adresa...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 3) VRIJEME ███ -->
-            <article class="card" data-card="weather">
-                <header class="card-header">
-                    <h2>Vrijeme</h2>
-                    <small id="weather-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="weather-output" class="card-output">Loading...</div>
-                </div>
-            </article>
+          <article class="card">
+            <header class="card-header">
+              <h2>Hitne službe</h2>
+              <small id="emergency-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="emergency-output" class="card-output">
+                Učitavanje informacija za hitne slučajeve...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 4) PROMET ███ -->
-            <article class="card" data-card="traffic">
-                <header class="card-header">
-                    <h2>Promet</h2>
-                    <small id="traffic-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="traffic-output" class="card-output">Loading...</div>
-                </div>
-            </article>
+          <!-- ČETVRTI RED: JAVNI PRIJEVOZ, EVENTI, ZNAMENITOSTI -->
+          <article class="card">
+            <header class="card-header">
+              <h2>Javni prijevoz</h2>
+              <small id="transit-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="transit-output" class="card-output">
+                Učitavanje informacija o javnom prijevozu...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 5) AERODROM ███ -->
-            <article class="card" data-card="airport">
-                <header class="card-header">
-                    <h2>Aerodrom</h2>
-                    <small id="airport-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="airport-output" class="card-output">Loading...</div>
-                </div>
-            </article>
+          <article class="card">
+            <header class="card-header">
+              <h2>Eventi</h2>
+              <small id="events-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="events-output" class="card-output">
+                Učitavanje događanja...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 6) ALERTS ███ -->
-            <article class="card" data-card="alerts">
-                <header class="card-header">
-                    <h2>Upozorenja</h2>
-                    <small id="alerts-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="alerts-output" class="card-output">Loading...</div>
-                </div>
-            </article>
+          <article class="card">
+            <header class="card-header">
+              <h2>Znamenitosti</h2>
+              <small id="landmarks-city-label">Split</small>
+            </header>
+            <div class="card-body">
+              <div id="landmarks-output" class="card-output">
+                Učitavanje znamenitosti...
+              </div>
+            </div>
+          </article>
 
-            <!-- ███ 7) SERVISI ███ -->
-            <article class="card" data-card="services">
-                <header class="card-header">
-                    <h2>Servisi</h2>
-                    <small id="services-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="services-output" class="card-output">Loading...</div>
-                </div>
-            </article>
-
-            <!-- ███ 8) HITNE ███ -->
-            <article class="card" data-card="emergency">
-                <header class="card-header">
-                    <h2>Hitno</h2>
-                    <small id="emergency-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="emergency-output" class="card-output">Loading...</div>
-                </div>
-            </article>
-
-            <!-- ███ 9) JAVNI PRIJEVOZ ███ -->
-            <article class="card" data-card="transit">
-                <header class="card-header">
-                    <h2>Prijevoz</h2>
-                    <small id="transit-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="transit-output" class="card-output">Loading...</div>
-                </div>
-            </article>
-
-            <!-- ███ 10) ZNAMENITOSTI ███ -->
-            <article class="card" data-card="landmarks">
-                <header class="card-header">
-                    <h2>Znamenitosti</h2>
-                    <small id="landmarks-city-label">–</small>
-                </header>
-                <div class="card-body">
-                    <div id="landmarks-output" class="card-output">Loading...</div>
-                </div>
-            </article>
-
-            <!-- ███ 11) FOTOGRAFIJE ███ -->
-            <article class="card full-row" data-card="photos">
-                <header class="card-header">
-                    <h2>Fotografije</h2>
-                    <small id="photos-city-label">–</small>
-                </header>
-                <div class="card-body photos-grid" id="photos-grid"></div>
-            </article>
-
+          <!-- PETI RED: FOTOGRAFIJE -->
+          <article class="card full-row">
+            <header class="card-header">
+              <h2>Fotografije grada</h2>
+              <small id="photos-city-label">Split</small>
+            </header>
+            <div class="card-body photos-grid" id="photos-grid">
+              <!-- slike se pune iz API-ja -->
+            </div>
+          </article>
         </section>
 
         <footer class="app-footer">
-            © 2025 TBW AI PREMIUM – Travel Navigator ULTRA
+          <span
+            >© 2025 TBW AI PREMIUM – Travel Navigator ULTRA (Founder
+            mode)</span
+          >
         </footer>
+      </main>
+    </div>
 
-    </main>
-</div>
-
-<script src="app.js"></script>
-
-</body>
+    <!-- Glavni front-end JS -->
+    <script src="app.js"></script>
+  </body>
 </html>
