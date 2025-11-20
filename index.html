@@ -1,292 +1,170 @@
 <!DOCTYPE html>
 <html lang="hr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-    <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
+  <link rel="stylesheet" href="style.css" />
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/icon-owl.png" />
 
-    <!-- Ikona (nije obavezno, možeš staviti svoju) -->
-    <link rel="icon" type="image/png" href="/icon-owl.png" />
+  <!-- Google Maps (StreetView) -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=REPLACE_WITH_YOUR_GOOGLE_MAPS_JS_API_KEY&libraries=places">
+  </script>
+</head>
 
-    <!-- GOOGLE MAPS JS API (za Street View) – zamijeni KEY -->
-    <script
-      async
-      defer
-      src="https://maps.googleapis.com/maps/api/js?key=REPLACE_WITH_YOUR_GOOGLE_MAPS_JS_API_KEY&libraries=places&callback=initStreetViewMap"
-    ></script>
-  </head>
-  <body>
-    <div class="app-shell">
-      <!-- GORNJI FIKSNI BLOK: naslov + ticker + hero + glavna tražilica -->
-      <header class="app-header">
-        <!-- Naslov + founder badge -->
-        <div class="app-title-row">
-          <div class="app-logo-circle">
-            <span class="logo-icon">🦅</span>
-          </div>
-          <div class="app-title-block">
-            <div class="app-title">TBW AI PREMIUM</div>
-            <div class="app-subtitle">
-              Prometna upozorenja · Vrijeme · Stanje mora · Nesreće · Alert !
-            </div>
-          </div>
+<body>
+  <div class="app-shell">
 
-          <div class="founder-switch" id="founder-switch">
-            <span class="founder-label">FOUNDER MODE</span>
+    <!-- HEADER -->
+    <header class="app-header">
+
+      <!-- TITLE ROW -->
+      <div class="app-title-row">
+        <div class="app-logo-circle"><span class="logo-icon">🦅</span></div>
+
+        <div class="app-title-block">
+          <div class="app-title">TBW AI PREMIUM</div>
+          <div class="app-subtitle">
+            Prometna upozorenja · Vrijeme · Stanje mora · Nesreće · Alert!
           </div>
         </div>
 
-        <!-- TICKER – stalno skrolaju obavijesti -->
-        <div class="ticker-bar">
-          <span class="ticker-dot live"></span>
-          <span class="ticker-label">LIVE</span>
-          <div class="ticker-strip-wrapper">
-            <div id="ticker-strip" class="ticker-strip">
-              Učitavanje obavijesti...
-            </div>
-          </div>
+        <div class="founder-switch" id="founder-switch">
+          <span class="founder-label">FOUNDER MODE</span>
+        </div>
+      </div>
+
+      <!-- TICKER -->
+      <div class="ticker-bar">
+        <span class="ticker-dot live"></span>
+        <span class="ticker-label">LIVE</span>
+        <div class="ticker-strip-wrapper">
+          <div id="ticker-strip" class="ticker-strip">Učitavanje obavijesti...</div>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <div class="hero-wrapper">
+        <div class="hero-image-layer">
+          <img id="hero-image"
+            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600"
+            alt="hero">
         </div>
 
-        <!-- HERO: live kamera ili Unsplash fallback + mali Street View -->
-        <div class="hero-wrapper">
-          <div class="hero-image-layer">
-            <!-- app.js će ovdje ili ubaciti <iframe> kamere ili sliku -->
-            <img
-              id="hero-image"
-              src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600"
-              alt="TBW hero"
-            />
+        <div id="streetview-shell" class="streetview-shell">
+          <div class="streetview-header">
+            <span>Live Camera</span>
+            <button id="streetview-toggle" class="streetview-toggle">⤢</button>
           </div>
+          <div id="streetview-container" class="streetview-container"></div>
+        </div>
+      </div>
 
-          <!-- Street View mini prozor -->
-          <div id="streetview-shell" class="streetview-shell">
-            <div class="streetview-header">
-              <span>Street View</span>
-              <button
-                id="streetview-toggle"
-                type="button"
-                class="streetview-toggle"
-              >
-                ⤢
-              </button>
+      <!-- MAIN SEARCH -->
+      <div class="main-search-wrap">
+        <input id="main-query" class="main-search-input" placeholder="Split apartmani" autocomplete="off" />
+        <button id="voice-toggle" class="icon-button">🎙</button>
+        <button id="search-btn" class="search-button">Traži</button>
+      </div>
+
+      <div class="trial-info" id="trial-info"></div>
+    </header>
+
+    <!-- GRID KARTICE -->
+    <main class="cards-scroll">
+      <section class="cards-grid">
+
+        <!-- NAV -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="nav-title">Navigacija</h2>
+            <small id="nav-city-label">Split</small>
+          </header>
+          <div class="card-body">
+            <label class="field-label">Od</label>
+            <input id="nav-from" class="card-input" placeholder="Polazište" />
+
+            <label class="field-label">Do</label>
+            <input id="nav-to" class="card-input" placeholder="Odredište" />
+
+            <div class="card-actions">
+              <button id="nav-btn" class="primary-btn">Ruta</button>
+              <button id="nav-gmaps-btn" class="ghost-btn">Google Maps</button>
             </div>
-            <div id="streetview-container" class="streetview-container"></div>
+
+            <div id="nav-output" class="card-output">Upiši rutu.</div>
           </div>
-        </div>
+        </article>
 
-        <!-- GLAVNA TRAŽILICA – fiksna -->
-        <div class="main-search-wrap">
-          <input
-            id="main-query"
-            type="text"
-            class="main-search-input"
-            placeholder="Split apartmani"
-            autocomplete="off"
-          />
-          <button id="voice-toggle" type="button" class="icon-button">
-            🎙
-          </button>
-          <button id="search-btn" type="button" class="search-button">
-            Traži
-          </button>
-        </div>
+        <!-- BOOKING -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="booking-title">Rezervacija smještaja</h2>
+            <small id="booking-city-label">Split</small>
+          </header>
+          <div class="card-body">
+            <div id="booking-output" class="card-output">Učitavanje...</div>
+            <button id="booking-btn" class="primary-btn full">Otvori Booking</button>
+          </div>
+        </article>
 
-        <!-- Trial info -->
-        <div class="trial-info" id="trial-info"></div>
-      </header>
+        <!-- WEATHER -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="weather-title">Vrijeme</h2>
+            <small id="weather-city-label">Split</small>
+          </header>
+          <div id="weather-output" class="card-body card-output">Učitavanje...</div>
+        </article>
 
-      <!-- DONJI DIO – skrolaju se samo kartice -->
-      <main class="cards-scroll">
-        <section class="cards-grid">
-          <!-- RED 1: NAVIGACIJA + SMJEŠTAJ (najvažnije) -->
-          <article class="card nav-card">
-            <header class="card-header">
-              <h2>Navigacija</h2>
-              <small id="nav-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <label class="field-label">Od (grad / adresa)</label>
-              <input
-                id="nav-from"
-                type="text"
-                class="card-input"
-                placeholder="Trenutna lokacija ili grad"
-              />
-              <label class="field-label">Do (grad / adresa)</label>
-              <input
-                id="nav-to"
-                type="text"
-                class="card-input"
-                placeholder="Npr. Split centar"
-              />
-              <div class="card-actions">
-                <button id="nav-btn" type="button" class="primary-btn">
-                  Ruta
-                </button>
-                <button id="nav-gmaps-btn" type="button" class="ghost-btn">
-                  Otvori u Google Maps
-                </button>
-              </div>
-              <div id="nav-output" class="card-output">
-                Upiši polazište i odredište za rutu.
-              </div>
-            </div>
-          </article>
+        <!-- TRAFFIC -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="traffic-title">Promet uživo</h2>
+            <small id="traffic-city-label">Split</small>
+          </header>
+          <div id="traffic-output" class="card-body card-output">Učitavanje...</div>
+        </article>
 
-          <article class="card booking-card">
-            <header class="card-header">
-              <h2>Rezervacija smještaja</h2>
-              <small id="booking-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="booking-output" class="card-output">
-                Učitavanje preporuka za smještaj...
-              </div>
-              <button id="booking-btn" type="button" class="primary-btn full">
-                Otvori Booking
-              </button>
-            </div>
-          </article>
+        <!-- AIRPORT -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="airport-title">Aerodromi</h2>
+            <small id="airport-city-label">Split</small>
+          </header>
+          <div id="airport-output" class="card-body card-output">Učitavanje...</div>
+        </article>
 
-          <!-- RED 2: VRIJEME + PROMET -->
-          <article class="card">
-            <header class="card-header">
-              <h2>Vrijeme</h2>
-              <small id="weather-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="weather-output" class="card-output">
-                Učitavanje vremenske prognoze...
-              </div>
-            </div>
-          </article>
+        <!-- LANDMARKS -->
+        <article class="card">
+          <header class="card-header">
+            <h2 id="landmarks-title">Znamenitosti</h2>
+            <small id="landmarks-city-label">Split</small>
+          </header>
+          <div id="landmarks-output" class="card-body card-output">Učitavanje...</div>
+        </article>
 
-          <article class="card">
-            <header class="card-header">
-              <h2>Promet uživo</h2>
-              <small id="traffic-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="traffic-output" class="card-output">
-                Učitavanje podataka o prometu...
-              </div>
-            </div>
-          </article>
+        <!-- PHOTOS -->
+        <article class="card full-row">
+          <header class="card-header">
+            <h2 id="photos-title">Fotografije grada</h2>
+            <small id="photos-city-label">Split</small>
+          </header>
+          <div id="photos-grid" class="card-body photos-grid"></div>
+        </article>
 
-          <!-- RED 3: AERODROMI + ALARMI -->
-          <article class="card">
-            <header class="card-header">
-              <h2>Aerodromi</h2>
-              <small id="airport-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="airport-output" class="card-output">
-                Učitavanje informacija o letovima...
-              </div>
-            </div>
-          </article>
+      </section>
 
-          <article class="card">
-            <header class="card-header">
-              <h2>Alarmi</h2>
-              <small id="alerts-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="alerts-output" class="card-output">
-                Učitavanje sigurnosnih upozorenja...
-              </div>
-            </div>
-          </article>
+      <footer class="app-footer">
+        © 2025 TBW AI PREMIUM – Travel Navigator ULTRA
+      </footer>
+    </main>
 
-          <!-- RED 4: SERVISI + HITNE SLUŽBE -->
-          <article class="card">
-            <header class="card-header">
-              <h2>Servisi</h2>
-              <small id="services-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="services-output" class="card-output">
-                Učitavanje servisa i 24/7 adresa...
-              </div>
-            </div>
-          </article>
+  </div>
 
-          <article class="card">
-            <header class="card-header">
-              <h2>Hitne službe</h2>
-              <small id="emergency-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="emergency-output" class="card-output">
-                Učitavanje informacija za hitne slučajeve...
-              </div>
-            </div>
-          </article>
-
-          <!-- RED 5: JAVNI PRIJEVOZ + EVENTI (možemo kasnije preimenovati u Plaže / Kamera uživo) -->
-          <article class="card">
-            <header class="card-header">
-              <h2>Javni prijevoz</h2>
-              <small id="transit-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="transit-output" class="card-output">
-                Učitavanje informacija o javnom prijevozu...
-              </div>
-            </div>
-          </article>
-
-          <article class="card">
-            <header class="card-header">
-              <h2>Eventi</h2>
-              <small id="events-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="events-output" class="card-output">
-                Učitavanje događanja...
-              </div>
-            </div>
-          </article>
-
-          <!-- RED 6: ZNAMENITOSTI + FOTOGRAFIJE -->
-          <article class="card">
-            <header class="card-header">
-              <h2>Znamenitosti</h2>
-              <small id="landmarks-city-label">Split</small>
-            </header>
-            <div class="card-body">
-              <div id="landmarks-output" class="card-output">
-                Učitavanje znamenitosti...
-              </div>
-            </div>
-          </article>
-
-          <article class="card full-row">
-            <header class="card-header">
-              <h2>Fotografije grada</h2>
-              <small id="photos-city-label">Split</small>
-            </header>
-            <div class="card-body photos-grid" id="photos-grid">
-              <!-- slike se pune iz API-ja -->
-            </div>
-          </article>
-        </section>
-
-        <footer class="app-footer">
-          <span
-            >© 2025 TBW AI PREMIUM – Travel Navigator ULTRA (Founder mode)</span
-          >
-        </footer>
-      </main>
-    </div>
-
-    <!-- FRONTEND LOGIKA -->
-    <script src="app.js"></script>
-  </body>
+  <script src="app.js"></script>
+</body>
 </html>
