@@ -112,7 +112,7 @@ async function handleAlerts(city, lang) {
   };
 }
 
-// WEATHER (vraca i lat/lon za StreetView)
+// WEATHER
 async function handleWeather(city, lang) {
   if (!OPENWEATHER) {
     const coords = await geocodeCity(city);
