@@ -1,12 +1,12 @@
 // TBW AI PREMIUM – FRONTEND ULTRA
-// Radi s backendom /api/tbw (route param)
+// Radi s backendom /api/tbw
 
 const API_BASE = "/api/tbw";
 
 let currentCity = "Split";
 let currentLang = "hr";
 
-const FOUNDER_DEFAULT = true; // osnivač = uvijek Premium u founder modu
+const FOUNDER_DEFAULT = true;
 const TRIAL_DAYS_DEFAULT = 7;
 
 const HERO_FALLBACKS = [
@@ -28,7 +28,7 @@ const LANG_VOICE = {
 
 const $ = (sel) => document.querySelector(sel);
 
-// ---------------- I18N (osnovne etikete) ----------------
+// I18N LABELS
 const I18N = {
   nav_alerts: {
     hr: "Prometna upozorenja",
@@ -210,16 +210,6 @@ const I18N = {
     cs: "Fotky",
     hu: "Fotók"
   },
-  streetview_title: {
-    hr: "LIVE Street View",
-    en: "LIVE Street View",
-    de: "LIVE Street View",
-    fr: "LIVE Street View",
-    it: "LIVE Street View",
-    es: "LIVE Street View",
-    cs: "LIVE Street View",
-    hu: "LIVE Street View"
-  },
   btn_go: {
     hr: "Kreni",
     en: "Go",
@@ -246,13 +236,11 @@ function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.dataset.i18n;
     const map = I18N[key];
-    if (map && map[currentLang]) {
-      el.textContent = map[currentLang];
-    }
+    if (map && map[currentLang]) el.textContent = map[currentLang];
   });
 }
 
-// ---------------- API helper ----------------
+// API HELPER
 async function callApi(route, extra = {}) {
   const url = new URL(API_BASE, window.location.origin);
   url.searchParams.set("route", route);
@@ -264,11 +252,10 @@ async function callApi(route, extra = {}) {
   return res.json();
 }
 
-// ---------------- HERO ----------------
+// HERO
 function randomHero() {
   return HERO_FALLBACKS[Math.floor(Math.random() * HERO_FALLBACKS.length)];
 }
-
 async function loadHero() {
   try {
     const data = await callApi("hero");
@@ -280,7 +267,7 @@ async function loadHero() {
   }
 }
 
-// ---------------- TICKER ----------------
+// TICKER
 async function loadTicker() {
   try {
     const data = await callApi("alerts");
@@ -289,37 +276,34 @@ async function loadTicker() {
     $("#alertTicker").textContent = "Greška pri učitavanju upozorenja.";
   }
 }
-
 setInterval(loadTicker, 60000);
 
-// ---------------- BACKEND STATUS ----------------
+// BACKEND STATUS
 async function checkBackend() {
   const el = $("#backendStatus");
   try {
     await callApi("meta");
-    el.classList.remove("err");
-    el.classList.add("ok");
     el.textContent = "Backend: online";
   } catch {
-    el.classList.remove("ok");
-    el.classList.add("err");
     el.textContent = "Backend: offline";
   }
 }
 
-// ---------------- WEATHER ----------------
+// WEATHER
 async function loadWeather() {
   try {
     const d = await callApi("weather");
     $("#wTemp").textContent = `${Math.round(d.temp ?? 0)}°C`;
     $("#wCond").textContent = d.condition || "-";
     $("#wCity").textContent = d.city || currentCity;
+    // update StreetView pozicija
+    updateStreetViewFromWeather(d);
   } catch {
     $("#weatherBox").textContent = "Greška.";
   }
 }
 
-// ---------------- TRAFFIC ----------------
+// TRAFFIC
 async function loadTraffic() {
   try {
     const d = await callApi("traffic");
@@ -331,7 +315,7 @@ async function loadTraffic() {
   }
 }
 
-// ---------------- SEA ----------------
+// SEA
 async function loadSea() {
   try {
     const d = await callApi("sea");
@@ -341,7 +325,7 @@ async function loadSea() {
   }
 }
 
-// ---------------- AIRPORT ----------------
+// AIRPORT
 async function loadAirport() {
   try {
     const d = await callApi("airport");
@@ -351,7 +335,7 @@ async function loadAirport() {
   }
 }
 
-// ---------------- SERVICES ----------------
+// SERVICES
 async function loadServices() {
   try {
     const d = await callApi("services");
@@ -361,7 +345,7 @@ async function loadServices() {
   }
 }
 
-// ---------------- TRANSIT ----------------
+// TRANSIT
 async function loadTransit() {
   try {
     const d = await callApi("transit");
@@ -371,7 +355,7 @@ async function loadTransit() {
   }
 }
 
-// ---------------- EMERGENCY ----------------
+// EMERGENCY
 async function loadEmergency() {
   try {
     const d = await callApi("emergency");
@@ -381,7 +365,7 @@ async function loadEmergency() {
   }
 }
 
-// ---------------- LANDMARKS ----------------
+// LANDMARKS
 async function loadLandmarks() {
   try {
     const d = await callApi("landmarks");
@@ -391,7 +375,7 @@ async function loadLandmarks() {
   }
 }
 
-// ---------------- PHOTOS ----------------
+// PHOTOS
 async function loadPhotos() {
   try {
     const d = await callApi("photos");
@@ -403,7 +387,7 @@ async function loadPhotos() {
   }
 }
 
-// ---------------- BOOKING ----------------
+// BOOKING
 async function loadBooking() {
   try {
     const d = await callApi("booking");
@@ -416,7 +400,7 @@ async function loadBooking() {
   }
 }
 
-// ---------------- NAVIGATION ----------------
+// NAVIGACIJA
 function buildGMapsRouteURL(from, to) {
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
     from
@@ -431,6 +415,7 @@ async function startNav() {
     return;
   }
   $("#navInfo").textContent = "Računam rutu…";
+
   try {
     const d = await callApi("route", { from, to });
     const lines = [];
@@ -439,17 +424,14 @@ async function startNav() {
     lines.push(`Trajanje: ${d.duration}`);
     $("#navInfo").innerHTML = lines.join("<br>");
 
-    // GMaps gumb
     const gmapsUrl = buildGMapsRouteURL(d.from || from, d.to || to);
     const navOpenBtn = document.getElementById("navOpenMaps");
     if (navOpenBtn) {
       navOpenBtn.onclick = () => window.open(gmapsUrl, "_blank");
     }
 
-    // govorna ruta
     speakRoute(d);
 
-    // jednostavni "realtime" refresh svakih 30s
     if (window._navInterval) clearInterval(window._navInterval);
     window._navInterval = setInterval(() => {
       callApi("route", { from, to })
@@ -476,38 +458,66 @@ function speakRoute(d) {
   window.speechSynthesis.speak(u);
 }
 
-// ---------------- STREET VIEW ----------------
-function buildStreetViewURL(city) {
-  return `https://www.google.com/maps?q=${encodeURIComponent(city)}&layer=c`;
+// STREET VIEW GOOGLE MAPS
+let googleMapsLoaded = false;
+let svMiniPanorama = null;
+let lastSVCoords = { lat: 43.5081, lon: 16.4402 };
+
+window.initStreetViewAPI = function () {
+  googleMapsLoaded = true;
+  initMiniStreetView();
+};
+
+function initMiniStreetView() {
+  if (!googleMapsLoaded || !window.google || !google.maps) return;
+  const el = document.getElementById("streetViewMiniBody");
+  if (!el) return;
+
+  const pos = { lat: lastSVCoords.lat, lng: lastSVCoords.lon };
+  svMiniPanorama = new google.maps.StreetViewPanorama(el, {
+    position: pos,
+    pov: { heading: 165, pitch: 0 },
+    zoom: 1,
+    linksControl: false,
+    panControl: false,
+    enableCloseButton: false
+  });
 }
 
-function renderStreetViewPreview() {
-  const box = document.getElementById("streetViewPreview");
-  if (!box) return;
-  const url = buildStreetViewURL(currentCity);
-  box.innerHTML = `<iframe src="${url}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+function updateStreetViewFromWeather(d) {
+  if (typeof d.lat === "number" && typeof d.lon === "number") {
+    lastSVCoords = { lat: d.lat, lon: d.lon };
+  }
+  if (googleMapsLoaded) {
+    initMiniStreetView();
+  }
 }
 
 function openStreetViewFullscreen() {
-  const url = buildStreetViewURL(currentCity);
+  if (!googleMapsLoaded || !window.google || !google.maps) return;
+
   const overlay = document.createElement("div");
   overlay.className = "sv-modal-overlay";
-
   overlay.innerHTML = `
     <div class="sv-modal-header">
       <button id="svCloseBtn">✕ Close</button>
     </div>
     <div class="sv-modal-body">
-      <iframe src="${url}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div id="streetViewFull"></div>
     </div>
   `;
-
   document.body.appendChild(overlay);
 
+  const pos = { lat: lastSVCoords.lat, lng: lastSVCoords.lon };
+  const fullEl = document.getElementById("streetViewFull");
+  new google.maps.StreetViewPanorama(fullEl, {
+    position: pos,
+    pov: { heading: 165, pitch: 0 },
+    zoom: 1
+  });
+
   document.getElementById("svCloseBtn").onclick = () => {
-    if (document.body.contains(overlay)) {
-      document.body.removeChild(overlay);
-    }
+    document.body.removeChild(overlay);
   };
 
   const escHandler = (e) => {
@@ -521,7 +531,7 @@ function openStreetViewFullscreen() {
   document.addEventListener("keydown", escHandler);
 }
 
-// ---------------- TRIAL / PREMIUM (lokalni) ----------------
+// TRIAL / PREMIUM
 function getTrialInfo() {
   const raw = localStorage.getItem("tbw_trial");
   if (!raw) return null;
@@ -531,11 +541,9 @@ function getTrialInfo() {
     return null;
   }
 }
-
 function setTrialInfo(obj) {
   localStorage.setItem("tbw_trial", JSON.stringify(obj));
 }
-
 function initTrial(meta) {
   const founderToggle = $("#founderToggle");
   if (founderToggle) founderToggle.checked = FOUNDER_DEFAULT;
@@ -551,7 +559,6 @@ function initTrial(meta) {
   }
   updateTrialUI(info);
 }
-
 function updateTrialUI(info) {
   const trialEl = $("#trialInfo");
   const founderToggle = $("#founderToggle");
@@ -573,27 +580,31 @@ function updateTrialUI(info) {
   } else {
     trialEl.textContent = "Premium aktivan.";
   }
-
-  // Za sada samo informacija – ne zaključavamo ništa vizualno
 }
 
-// ---------------- LANGUAGE INIT ----------------
+// LANG SELECT
 function initLang() {
   const select = $("#langSelect");
   if (!select) return;
+
+  const browserLang = (navigator.language || "hr").slice(0, 2);
+  if (["hr","en","de","fr","it","es","cs","hu"].includes(browserLang)) {
+    currentLang = browserLang;
+  }
   select.value = currentLang;
+
   select.addEventListener("change", () => {
     currentLang = select.value;
     applyI18n();
     refreshAll();
-    // mic i TTS će koristiti novi jezik
     if (rec) {
       rec.lang = LANG_VOICE[currentLang] || "en-US";
     }
   });
+  applyI18n();
 }
 
-// ---------------- MIC (glas za tražilicu) ----------------
+// MIC
 let rec = null;
 function initMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -611,7 +622,7 @@ function initMic() {
   });
 }
 
-// ---------------- REFRESH ALL ----------------
+// REFRESH
 function refreshAll() {
   checkBackend();
   loadHero();
@@ -626,15 +637,12 @@ function refreshAll() {
   loadLandmarks();
   loadPhotos();
   loadBooking();
-  renderStreetViewPreview();
 }
 
-// ---------------- INIT ----------------
+// INIT
 document.addEventListener("DOMContentLoaded", async () => {
   initLang();
-  applyI18n();
 
-  // meta / trial
   let meta = null;
   try {
     meta = await callApi("meta");
@@ -664,10 +672,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.speechSynthesis.speak(u);
   });
 
-  const svBtn = document.getElementById("streetViewOpenBtn");
-  if (svBtn) {
-    svBtn.addEventListener("click", openStreetViewFullscreen);
-  }
+  const svExpandBtn = document.getElementById("svExpandBtn");
+  if (svExpandBtn) svExpandBtn.addEventListener("click", openStreetViewFullscreen);
 
   $("#founderToggle").addEventListener("change", () => {
     const info = getTrialInfo();
@@ -685,14 +691,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Premium aktiviran (demo). Za pravu naplatu treba Google Play Billing integracija."
     );
   });
-
-  const navOpenBtn = document.getElementById("navOpenMaps");
-  if (navOpenBtn) {
-    navOpenBtn.onclick = () => {
-      const from = $("#navFrom").value.trim() || currentCity;
-      const to = $("#navTo").value.trim();
-      if (!to) return;
-      window.open(buildGMapsRouteURL(from, to), "_blank");
-    };
-  }
 });
