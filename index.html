@@ -1,197 +1,122 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TBW AI PREMIUM – Travel Navigator ULTRA</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TBW AI PREMIUM</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- GOOGLE MAPS + PLACES + STREETVIEW -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_JS_KEY&libraries=places"></script>
 </head>
 
 <body>
-  <!-- TOP STRIP -->
-  <header class="top">
-    <h1>TBW AI PREMIUM</h1>
-    <nav class="pill">
-      <span data-i18n="nav_alerts">Prometna upozorenja</span>
-      <span data-i18n="nav_weather">Vrijeme</span>
-      <span data-i18n="nav_sea">Stanje mora</span>
-      <span data-i18n="nav_incidents">Nesreće</span>
-      <span data-i18n="nav_alert">Alert!</span>
-    </nav>
-  </header>
 
-  <!-- HERO (slika + mini Street View + ticker + tražilica) -->
-  <section class="hero">
-    <div class="hero-img-wrap">
-      <img id="heroImg" alt="TBW pozadina" />
-      <div class="hero-overlay"></div>
+<header id="hero">
+  <img id="hero-img" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800" alt="">
+  
+  <!-- MINI STREET VIEW PROZOR -->
+  <div id="street-mini">
+    <div id="street-mini-map"></div>
+    <button id="street-expand">⤢</button>
+  </div>
 
-      <!-- LIVE TIKER -->
-      <div class="hero-ticker">
-        <span class="live-dot"></span>
-        <span class="live-label">LIVE</span>
-        <span id="alertTicker">Učitavanje upozorenja…</span>
-      </div>
+  <!-- NASLOV -->
+  <h1>TBW AI PREMIUM</h1>
 
-      <!-- MINI STREET VIEW U DONJEM DESNOM KUTU -->
-      <div id="streetViewMini" class="sv-mini">
-        <div class="sv-mini-header">
-          <span>Street View</span>
-          <button id="svExpandBtn">⤢</button>
-        </div>
-        <div id="streetViewMiniBody" class="sv-mini-body">
-          <!-- puni se iz JS-a (Google Maps Street View) -->
-        </div>
-      </div>
+  <!-- KATEGORIJE -->
+  <nav id="top-nav">
+    <span data-box="alerts">Prometna upozorenja</span>
+    <span data-box="weather">Vrijeme</span>
+    <span data-box="sea">Stanje mora</span>
+    <span data-box="emergency">Nesreće</span>
+    <span data-box="alert">Alert!</span>
+  </nav>
+
+  <!-- TRAŽILICA -->
+  <div id="search-box">
+    <input id="search-input" placeholder="Split apartmani…">
+    <button id="voice-btn">🎤</button>
+  </div>
+
+  <!-- TIKER -->
+  <div id="tiker">
+    <span id="tiker-text">Učitavanje upozorenja…</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- NAVIGACIJA -->
+  <section class="card" id="card-navigation">
+    <h2>Navigacija</h2>
+    <div class="two-col">
+      <input id="nav-from" placeholder="Od (grad, adresa…)">
+      <input id="nav-to" placeholder="Do (grad, adresa…)">
     </div>
+    <button id="nav-search">Pronađi rutu</button>
 
-    <!-- GLAVNA TRAŽILICA -->
-    <div class="search">
-      <input id="cityInput" type="text" placeholder="Split apartmani / Rome hotels / Wien traffic…" />
-      <button id="searchBtn" data-i18n="btn_search">Traži</button>
-      <button id="micBtn" title="Glasovna pretraga">🎤</button>
-      <select id="langSelect">
-        <option value="hr">HR</option>
-        <option value="en">EN</option>
-        <option value="de">DE</option>
-        <option value="fr">FR</option>
-        <option value="it">IT</option>
-        <option value="es">ES</option>
-        <option value="cs">CZ</option>
-        <option value="hu">HU</option>
-      </select>
-    </div>
+    <div id="nav-result"></div>
   </section>
 
-  <!-- BACKEND STATUS -->
-  <section class="status-bar">
-    <span id="backendStatus" class="status-dot">Provjera backenda…</span>
+  <!-- SMJEŠTAJ -->
+  <section class="card" id="card-booking">
+    <h2>Rezervacija smještaja</h2>
+    <div id="booking-data"></div>
+    <a id="booking-link" class="button" target="_blank">Otvori Booking</a>
   </section>
 
-  <!-- GRID KARTICA (sve ispod je scroll, gore sve fiksno) -->
-  <main class="grid">
+  <!-- VRIJEME -->
+  <section class="card" id="card-weather">
+    <h2>Vrijeme</h2>
+    <div id="weather-data"></div>
+  </section>
 
-    <!-- NAVIGACIJA -->
-    <article class="card xl">
-      <header><h3 data-i18n="card_nav">Navigacija</h3></header>
-      <div class="card-body">
-        <div class="nav-fields">
-          <input id="navFrom" type="text" placeholder="Od (prazno = trenutačni grad)" />
-          <input id="navTo" type="text" placeholder="Do (grad, adresa…)" />
-        </div>
-        <div class="nav-btns">
-          <button id="navGo" data-i18n="btn_go">Kreni</button>
-          <button id="navVoice" title="Glasovne upute">🔊</button>
-          <button id="navOpenMaps" title="Otvori u Google Maps">📍</button>
-        </div>
-        <div id="navInfo" class="nav-info">Nema aktivne rute.</div>
-      </div>
-    </article>
+  <!-- PROMET -->
+  <section class="card" id="card-traffic">
+    <h2>Promet uživo</h2>
+    <div id="traffic-data"></div>
+  </section>
 
-    <!-- BOOKING -->
-    <article class="card xl">
-      <header><h3 data-i18n="card_booking">Rezervacija smještaja</h3></header>
-      <div class="card-body" id="bookingBox">
-        <div class="kv">
-          <div>Lokacija</div><strong id="bookCity">—</strong>
-        </div>
-        <div class="kv">
-          <div>Datumi</div><strong id="bookDates">—</strong>
-        </div>
-        <div class="kv">
-          <div>Cijena</div><strong id="bookPrice">—</strong>
-        </div>
-        <a id="bookLink" class="btn" target="_blank" rel="noopener" data-i18n="btn_open_booking">
-          Otvori Booking
-        </a>
-      </div>
-    </article>
+  <!-- AERODROM -->
+  <section class="card" id="card-airport">
+    <h2>Aerodromi</h2>
+    <div id="airport-data"></div>
+  </section>
 
-    <!-- VRIJEME -->
-    <article class="card">
-      <header><h3 data-i18n="card_weather">Vrijeme</h3></header>
-      <div class="card-body" id="weatherBox">
-        <div class="big" id="wTemp">—</div>
-        <div id="wCond">—</div>
-        <div class="muted" id="wCity">—</div>
-      </div>
-    </article>
+  <!-- SERVISI -->
+  <section class="card" id="card-services">
+    <h2>Servisi i hitne službe</h2>
+    <div id="services-data"></div>
+  </section>
 
-    <!-- PROMET -->
-    <article class="card">
-      <header><h3 data-i18n="card_traffic">Promet uživo</h3></header>
-      <div class="card-body" id="trafficBox">—</div>
-    </article>
+  <!-- ALERTI -->
+  <section class="card" id="card-alerts">
+    <h2>Alerti</h2>
+    <div id="alerts-data"></div>
+  </section>
 
-    <!-- MORE -->
-    <article class="card">
-      <header><h3 data-i18n="card_sea">Stanje mora</h3></header>
-      <div class="card-body" id="seaBox">—</div>
-    </article>
+  <!-- ZNAMENITOSTI -->
+  <section class="card" id="card-landmarks">
+    <h2>Znamenitosti</h2>
+    <div id="landmarks-data"></div>
+  </section>
 
-    <!-- AERODROMI -->
-    <article class="card">
-      <header><h3 data-i18n="card_airport">Aerodromi</h3></header>
-      <div class="card-body" id="airportBox">—</div>
-    </article>
+  <!-- FOTOGRAFIJE -->
+  <section class="card" id="card-photos">
+    <h2>Fotografije</h2>
+    <div id="photos-grid"></div>
+  </section>
 
-    <!-- SERVISI -->
-    <article class="card">
-      <header><h3 data-i18n="card_services">Servisi</h3></header>
-      <div class="card-body" id="servicesBox">—</div>
-    </article>
+</main>
 
-    <!-- JAVNI PRIJEVOZ -->
-    <article class="card">
-      <header><h3 data-i18n="card_transit">Javni prijevoz</h3></header>
-      <div class="card-body" id="transitBox">—</div>
-    </article>
+<!-- FULLSCREEN STREET VIEW -->
+<div id="street-full" class="hidden">
+  <button id="street-close">✕</button>
+  <div id="street-full-map"></div>
+</div>
 
-    <!-- HITNE SLUŽBE -->
-    <article class="card">
-      <header><h3 data-i18n="card_emergency">Hitne službe</h3></header>
-      <div class="card-body" id="emergencyBox">—</div>
-    </article>
+<script src="app.js"></script>
 
-    <!-- RDS ALARMI -->
-    <article class="card">
-      <header><h3 data-i18n="card_rds">RDS alarmi</h3></header>
-      <div class="card-body" id="alertsBox">—</div>
-    </article>
-
-    <!-- ZNAMENITOSTI -->
-    <article class="card">
-      <header><h3 data-i18n="card_landmarks">Znamenitosti</h3></header>
-      <div class="card-body" id="landmarksBox">—</div>
-    </article>
-
-    <!-- SLIKE -->
-    <article class="card">
-      <header><h3 data-i18n="card_photos">Slike</h3></header>
-      <div class="card-body photos" id="photosBox">—</div>
-    </article>
-
-    <!-- PREMIUM / TRIAL -->
-    <article class="card">
-      <header><h3>Premium</h3></header>
-      <div class="card-body">
-        <div id="trialInfo">—</div>
-        <label class="switch">
-          <input type="checkbox" id="founderToggle" />
-          <span class="slider"></span> Founder mode (always Premium)
-        </label>
-        <button id="upgradeBtn" class="btn">Activate Premium</button>
-      </div>
-    </article>
-
-  </main>
-
-  <footer class="foot">© 2025 TBW AI PREMIUM – Founder mode</footer>
-
-  <script src="app.js"></script>
-  <!-- Google Maps JS (Street View). Zamijeni YOUR_GOOGLE_MAPS_API_KEY svojim ključem -->
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6EsP-yJHpIdBBy-Iw9IRWtxP0lwpu2lA&libraries=places&callback=initStreetViewAPI">
-  </script>
 </body>
 </html>
