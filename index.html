@@ -8,13 +8,6 @@
 </head>
 
 <body>
-  <!-- INTRO (opcionalno) -->
-  <div id="introScreen">
-    <div class="intro-stars"></div>
-    <div class="intro-comet"></div>
-    <h1 class="intro-title">TBW AI PREMIUM</h1>
-  </div>
-
   <!-- TOP STRIP -->
   <header class="top">
     <h1>TBW AI PREMIUM</h1>
@@ -27,15 +20,28 @@
     </nav>
   </header>
 
-  <!-- HERO (slika) + TIKER -->
+  <!-- HERO (slika + mini Street View + ticker + tražilica) -->
   <section class="hero">
     <div class="hero-img-wrap">
       <img id="heroImg" alt="TBW pozadina" />
       <div class="hero-overlay"></div>
+
+      <!-- LIVE TIKER -->
       <div class="hero-ticker">
         <span class="live-dot"></span>
         <span class="live-label">LIVE</span>
         <span id="alertTicker">Učitavanje upozorenja…</span>
+      </div>
+
+      <!-- MINI STREET VIEW U DONJEM DESNOM KUTU -->
+      <div id="streetViewMini" class="sv-mini">
+        <div class="sv-mini-header">
+          <span>Street View</span>
+          <button id="svExpandBtn">⤢</button>
+        </div>
+        <div id="streetViewMiniBody" class="sv-mini-body">
+          <!-- puni se iz JS-a (Google Maps Street View) -->
+        </div>
       </div>
     </div>
 
@@ -43,18 +49,18 @@
     <div class="search">
       <input id="cityInput" type="text" placeholder="Split apartmani / Rome hotels / Wien traffic…" />
       <button id="searchBtn" data-i18n="btn_search">Traži</button>
-      <button id="micBtn" title="Voice search">🎤</button>
-      <select id="langSelect"></select>
+      <button id="micBtn" title="Glasovna pretraga">🎤</button>
+      <select id="langSelect">
+        <option value="hr">HR</option>
+        <option value="en">EN</option>
+        <option value="de">DE</option>
+        <option value="fr">FR</option>
+        <option value="it">IT</option>
+        <option value="es">ES</option>
+        <option value="cs">CZ</option>
+        <option value="hu">HU</option>
+      </select>
     </div>
-  </section>
-
-  <!-- STREET VIEW (LIVE) -->
-  <section class="streetview-fixed">
-    <header>
-      <h2 data-i18n="streetview_title">LIVE Street View</h2>
-    </header>
-    <div id="streetViewPreview"></div>
-    <button id="streetViewOpenBtn">Fullscreen</button>
   </section>
 
   <!-- BACKEND STATUS -->
@@ -62,32 +68,42 @@
     <span id="backendStatus" class="status-dot">Provjera backenda…</span>
   </section>
 
-  <!-- GRID (samo skrol dolje, sve iznad FIKSNO) -->
+  <!-- GRID KARTICA (sve ispod je scroll, gore sve fiksno) -->
   <main class="grid">
 
     <!-- NAVIGACIJA -->
     <article class="card xl">
       <header><h3 data-i18n="card_nav">Navigacija</h3></header>
       <div class="card-body">
-        <input id="navFrom" type="text" placeholder="Od (prazno = trenutačna lokacija)" />
-        <input id="navTo" type="text" placeholder="Do (adresa, grad…)" />
+        <div class="nav-fields">
+          <input id="navFrom" type="text" placeholder="Od (prazno = trenutačni grad)" />
+          <input id="navTo" type="text" placeholder="Do (grad, adresa…)" />
+        </div>
         <div class="nav-btns">
           <button id="navGo" data-i18n="btn_go">Kreni</button>
-          <button id="navVoice">🔊</button>
-          <button id="navOpenMaps">📍</button>
+          <button id="navVoice" title="Glasovne upute">🔊</button>
+          <button id="navOpenMaps" title="Otvori u Google Maps">📍</button>
         </div>
-        <div id="navInfo" class="nav-info">—</div>
+        <div id="navInfo" class="nav-info">Nema aktivne rute.</div>
       </div>
     </article>
 
     <!-- BOOKING -->
     <article class="card xl">
       <header><h3 data-i18n="card_booking">Rezervacija smještaja</h3></header>
-      <div class="card-body">
-        <div class="kv"><div>Lokacija</div><strong id="bookCity">—</strong></div>
-        <div class="kv"><div>Datumi</div><strong id="bookDates">—</strong></div>
-        <div class="kv"><div>Cijena</div><strong id="bookPrice">—</strong></div>
-        <a id="bookLink" class="btn" target="_blank" data-i18n="btn_open_booking">Otvori Booking</a>
+      <div class="card-body" id="bookingBox">
+        <div class="kv">
+          <div>Lokacija</div><strong id="bookCity">—</strong>
+        </div>
+        <div class="kv">
+          <div>Datumi</div><strong id="bookDates">—</strong>
+        </div>
+        <div class="kv">
+          <div>Cijena</div><strong id="bookPrice">—</strong>
+        </div>
+        <a id="bookLink" class="btn" target="_blank" rel="noopener" data-i18n="btn_open_booking">
+          Otvori Booking
+        </a>
       </div>
     </article>
 
@@ -155,7 +171,7 @@
       <div class="card-body photos" id="photosBox">—</div>
     </article>
 
-    <!-- PREMIUM + TRIAL -->
+    <!-- PREMIUM / TRIAL -->
     <article class="card">
       <header><h3>Premium</h3></header>
       <div class="card-body">
@@ -173,5 +189,9 @@
   <footer class="foot">© 2025 TBW AI PREMIUM – Founder mode</footer>
 
   <script src="app.js"></script>
+  <!-- Google Maps JS (Street View). Zamijeni YOUR_GOOGLE_MAPS_API_KEY svojim ključem -->
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initStreetViewAPI">
+  </script>
 </body>
 </html>
