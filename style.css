@@ -1,311 +1,343 @@
-/* GLOBAL */
+/* ----------------------------------------------------
+   TBW AI PREMIUM — ULTRA FRONTEND STYLESHEET
+   Luksuzni futuristički UI, tvoj premium dizajn
+   © 2025 — Dražen Halar (Founder)
+------------------------------------------------------*/
 
-*,
-*::before,
-*::after {
+:root {
+  --bg: #02060b;
+  --card-bg: rgba(10,20,30,0.68);
+  --border: rgba(0,230,255,0.35);
+  --glow: 0 0 12px rgba(0,230,255,0.45);
+  --text: #d9e6f2;
+  --muted: #7f8fa3;
+  --accent: #00e5ff;
+  --accent-glow: 0 0 22px rgba(0,255,255,0.6);
+  --radius: 18px;
+  --shadow: 0 0 18px rgba(0,0,0,0.45);
+}
+
+/* ============================================
+   GLOBAL RESET + BODY
+============================================ */
+* {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #1a3456 0, #050915 60%, #030509 100%);
-  color: #f8fafc;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow-x: hidden;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.app {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 30px 16px 40px;
-}
-
-/* HEADER */
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: 0.08em;
-}
-
-.subtitle {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: #cbd5f5;
-}
-
-.badge-pill {
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.6);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-/* HERO */
-
-.hero-image-wrapper {
-  position: relative;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  background: #020617;
-  min-height: 140px;
-}
-
-.hero-image-wrapper img {
+/* ============================================
+   TOP HEADER STRIP
+============================================ */
+.top {
   width: 100%;
-  height: 220px;
+  padding: 12px;
+  text-align: center;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  border-bottom: 1px solid var(--border);
+}
+
+.top h1 {
+  font-size: 20px;
+  color: var(--accent);
+  text-shadow: var(--accent-glow);
+  letter-spacing: 1px;
+}
+
+.pill {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+  gap: 8px;
+}
+
+.pill span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0,230,255,0.12);
+  border: 1px solid var(--border);
+  font-size: 10px;
+}
+
+/* ============================================
+   HERO WRAPPER
+============================================ */
+.hero {
+  margin-top: 76px;
+}
+
+.hero-img-wrap {
+  width: 100%;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+#heroImg {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  display: block;
-  opacity: 0.85;
+  filter: brightness(0.78);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top right,
-    rgba(15, 23, 42, 0.85),
-    rgba(15, 23, 42, 0.1)
-  );
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  background: linear-gradient(to bottom, transparent 10%, #02060b 90%);
 }
 
-.hero-overlay h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.hero-overlay p {
-  margin: 3px 0 0;
-  font-size: 12px;
-  color: #cbd5f5;
-}
-
-/* TICKER */
-
-.ticker {
-  margin-top: 14px;
-  margin-bottom: 18px;
+/* ============================================
+   LIVE TICKER
+============================================ */
+.hero-ticker {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  color: white;
+  font-size: 13px;
+  padding: 4px 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  font-size: 13px;
+  gap: 6px;
+  text-shadow: 0 0 4px black;
 }
 
-.ticker-label {
-  background: #22c55e;
-  color: #022c22;
-  font-weight: 600;
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+.live-dot {
+  width: 9px;
+  height: 9px;
+  background: #0f0;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #0f0;
 }
 
-/* GRID */
-
-.grid {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 18px;
+.live-label {
+  color: #0f0;
+  font-weight: bold;
 }
 
-.grid-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+/* ============================================
+   SEARCH BAR (FIKSNA)
+============================================ */
+.search {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
 }
 
-.grid-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.search input {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.4);
+  color: var(--text);
+  font-size: 14px;
 }
 
-@media (max-width: 900px) {
-  .grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.search button {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.6);
+  color: var(--accent);
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--glow);
 }
 
-@media (max-width: 720px) {
-  .grid-2,
-  .grid-3 {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .app-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+/* ============================================
+   STREET VIEW BAR (FIKSNI PREGLED)
+============================================ */
+.streetview-bar {
+  margin: 0 12px 10px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-/* CARD */
+.streetview-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
 
-.card {
-  background: rgba(15, 23, 42, 0.9);
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+.streetview-preview {
+  width: 100%;
+  height: 150px;
+  border-radius: var(--radius);
   overflow: hidden;
+}
+
+.streetview-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ============================================
+   STREET VIEW FULLSCREEN MODAL
+============================================ */
+.sv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 99999;
   display: flex;
   flex-direction: column;
 }
 
-.card-header {
-  padding: 10px 14px 6px;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+.sv-modal-header {
+  padding: 10px;
+  text-align: right;
 }
 
-.card-header h3 {
-  margin: 0;
+.sv-modal-header button {
+  background: rgba(0,0,0,0.7);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
   font-size: 14px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e5e7eb;
+}
+
+.sv-modal-body {
+  flex: 1;
+}
+
+.sv-modal-body iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ============================================
+   STATUS BAR
+============================================ */
+.status-bar {
+  text-align: center;
+  font-size: 12px;
+  padding: 4px;
+  color: var(--muted);
+}
+
+/* ============================================
+   MAIN CARDS GRID
+============================================ */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* Single-column on mobile */
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+.card.xl {
+  grid-column: span 2;
+}
+
+.card header h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: var(--accent);
+  text-shadow: var(--glow);
 }
 
 .card-body {
-  padding: 12px 14px 14px;
-  font-size: 13px;
-}
-
-/* INPUTS & BUTTONS */
-
-.input-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-input[type="text"] {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: rgba(15, 23, 42, 0.9);
-  color: #e5e7eb;
-  font-size: 13px;
-  outline: none;
-}
-
-input[type="text"]::placeholder {
-  color: #64748b;
-}
-
-button {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(to right, #38bdf8, #6366f1);
-  color: #0b1120;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-button:hover {
-  filter: brightness(1.05);
-}
-
-/* TEXT / OUTPUT */
-
-.hint {
-  margin: 0;
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.small-output {
-  font-size: 13px;
-  line-height: 1.4;
-  color: #e5e7eb;
-}
-
-.muted {
-  font-size: 12px;
-  color: #9ca3af;
-}
-
-.big-number {
-  font-size: 26px;
-  font-weight: 600;
-  margin-right: 6px;
-}
-
-.label {
   font-size: 14px;
+  line-height: 1.5;
 }
 
-/* WEATHER BOX */
-
-.weather-main {
+/* NAVIGATION */
+.nav-fields {
   display: flex;
-  align-items: baseline;
   gap: 6px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-/* LINK BUTTON */
+.nav-fields input {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius);
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
 
-.link-button {
-  display: inline-flex;
+.nav-fields button {
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.6);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.nav-actions {
   margin-top: 8px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.7);
-  font-size: 12px;
+  text-align: right;
 }
 
-.link-button:hover {
-  background: rgba(56, 189, 248, 0.2);
-}
-
-/* PHOTOS */
-
-.photos-body {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
+/* ============================================
+   PHOTOS GRID
+============================================ */
 .photo-thumb {
-  width: 30%;
-  min-width: 90px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
 }
 
-/* FOOTER */
-
-.app-footer {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(30, 64, 175, 0.6);
-  font-size: 11px;
-  color: #64748b;
+/* ============================================
+   FOOTER
+============================================ */
+.foot {
   text-align: center;
+  font-size: 12px;
+  padding: 20px;
+  color: var(--muted);
+}
+
+/* ============================================
+   HUD MODE (MRAČNI NAVIGACIJSKI MOD) - Future
+============================================ */
+.hud-mode body {
+  background: #000;
+}
+
+.hud-mode .card,
+.hud-mode .streetview-bar {
+  background: rgba(0,0,0,0.4);
+  border-color: rgba(0,255,255,0.6);
 }
