@@ -8,10 +8,10 @@ const fetch = require("node-fetch");
 // ----------------------------------------------
 //  API KEYS (OBAVEZNO UNESI SVOJE)
 // ----------------------------------------------
-const WEATHER_KEY = "YOUR_OPENWEATHER_API_KEY";
-const BOOKING_RAPID_KEY = "YOUR_RAPIDAPI_BOOKING_KEY";
-const FLIGHT_KEY = "YOUR_RAPIDAPI_FLIGHT_KEY";
-const TRAFFIC_KEY = "YOUR_TOMTOM_TRAFFIC_KEY";
+const WEATHER_KEY = "435a849b822b425baba54ee97f13394b";
+const BOOKING_RAPID_KEY = "c7f9908515msh1feae9f9a74d601p10446ajsn2e6b7f043143";
+const FLIGHT_KEY = "c7f9908515msh1feae9f9a74d601p10446ajsn2e6b7f043143";
+const TRAFFIC_KEY = "WIdDzhfb6pqM84iZAixHshvmjJbGkh1d";
 
 // fallback za hero slike
 const HERO_IMAGES = {
