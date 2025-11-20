@@ -4,7 +4,7 @@
 const API_BASE = "/api/tbw";
 
 // Street View – OVDJE STAVI SVOJ BROWSER API KEY
-const GOOGLE_MAPS_EMBED_KEY = "YOUR_GOOGLE_MAPS_EMBED_KEY";
+const GOOGLE_MAPS_EMBED_KEY = "435a849b822b425baba54ee97f13394b";
 
 // osnovne koordinate za HR gradove (za street view)
 const CITY_COORDS = {
