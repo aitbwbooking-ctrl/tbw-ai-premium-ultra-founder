@@ -1,12 +1,9 @@
-/* ----------------------------------------------------
-   TBW AI PREMIUM — ULTRA FRONTEND STYLESHEET
-   Luksuzni futuristički UI, tvoj premium dizajn
-   © 2025 — Dražen Halar (Founder)
-------------------------------------------------------*/
+/* TBW AI PREMIUM – ULTRA FRONTEND STYLESHEET */
+/* Luksuzni tamni neon dizajn */
 
 :root {
   --bg: #02060b;
-  --card-bg: rgba(10,20,30,0.68);
+  --card-bg: rgba(10,20,30,0.74);
   --border: rgba(0,230,255,0.35);
   --glow: 0 0 12px rgba(0,230,255,0.45);
   --text: #d9e6f2;
@@ -14,12 +11,9 @@
   --accent: #00e5ff;
   --accent-glow: 0 0 22px rgba(0,255,255,0.6);
   --radius: 18px;
-  --shadow: 0 0 18px rgba(0,0,0,0.45);
+  --shadow: 0 0 18px rgba(0,0,0,0.6);
 }
 
-/* ============================================
-   GLOBAL RESET + BODY
-============================================ */
 * {
   margin: 0;
   padding: 0;
@@ -27,21 +21,19 @@
 }
 
 body {
-  background: var(--bg);
+  background: radial-gradient(circle at top, #04101d 0, #02060b 45%, #000 100%);
   color: var(--text);
   font-family: "Segoe UI", Arial, sans-serif;
   overflow-x: hidden;
 }
 
-/* ============================================
-   TOP HEADER STRIP
-============================================ */
+/* HEADER */
 .top {
   width: 100%;
   padding: 12px;
   text-align: center;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
   position: fixed;
   top: 0;
   left: 0;
@@ -61,6 +53,7 @@ body {
   justify-content: center;
   margin-top: 6px;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pill span {
@@ -71,134 +64,107 @@ body {
   font-size: 10px;
 }
 
-/* ============================================
-   HERO WRAPPER
-============================================ */
+/* HERO */
 .hero {
   margin-top: 76px;
 }
 
 .hero-img-wrap {
   width: 100%;
-  height: 180px;
+  height: 190px;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--border);
 }
 
 #heroImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.78);
+  filter: brightness(0.8) saturate(1.1);
+  transform: scale(1.03);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 10%, #02060b 90%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), #02060b 90%);
 }
 
-/* ============================================
-   LIVE TICKER
-============================================ */
+/* TIKER */
 .hero-ticker {
   position: absolute;
   bottom: 10px;
-  left: 0;
-  width: 100%;
-  color: white;
-  font-size: 13px;
-  padding: 4px 14px;
+  left: 12px;
+  right: 12px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   gap: 6px;
-  text-shadow: 0 0 4px black;
+  background: rgba(0,0,0,0.5);
+  border-radius: 999px;
+  border: 1px solid rgba(0,230,255,0.3);
+  font-size: 12px;
+  color: #e5f7ff;
 }
 
 .live-dot {
   width: 9px;
   height: 9px;
-  background: #0f0;
   border-radius: 50%;
-  box-shadow: 0 0 8px #0f0;
+  background: #0f0;
+  box-shadow: 0 0 10px #0f0;
 }
 
 .live-label {
-  color: #0f0;
   font-weight: bold;
+  color: #5bff5b;
 }
 
-/* ============================================
-   SEARCH BAR (FIKSNA)
-============================================ */
-.search {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-}
-
-.search input {
-  flex: 1;
-  padding: 10px;
-  border-radius: var(--radius);
+/* MINI STREET VIEW U HERO SLICI */
+.sv-mini {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 130px;
+  height: 90px;
+  background: rgba(1,10,18,0.9);
+  border-radius: 14px;
   border: 1px solid var(--border);
-  background: rgba(0,0,0,0.4);
-  color: var(--text);
-  font-size: 14px;
-}
-
-.search button {
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,0.6);
-  color: var(--accent);
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: var(--glow);
-}
-
-/* ============================================
-   STREET VIEW BAR (FIKSNI PREGLED)
-============================================ */
-.streetview-bar {
-  margin: 0 12px 10px 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 8px;
-  border-radius: var(--radius);
   box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
 }
 
-.streetview-header {
+.sv-mini-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: var(--muted);
+  background: rgba(0,0,0,0.7);
+}
+
+.sv-mini-header button {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
   font-size: 12px;
 }
 
-.streetview-preview {
-  width: 100%;
-  height: 150px;
-  border-radius: var(--radius);
-  overflow: hidden;
+.sv-mini-body {
+  flex: 1;
 }
 
-.streetview-preview iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* ============================================
-   STREET VIEW FULLSCREEN MODAL
-============================================ */
+/* FULLSCREEN SV MODAL */
 .sv-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.93);
-  z-index: 99999;
+  background: rgba(0,0,0,0.9);
+  z-index: 9999;
   display: flex;
   flex-direction: column;
 }
@@ -209,38 +175,70 @@ body {
 }
 
 .sv-modal-header button {
-  background: rgba(0,0,0,0.7);
-  border: 1px solid var(--border);
-  color: var(--accent);
-  padding: 8px 14px;
   border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.7);
+  color: var(--accent);
+  padding: 6px 14px;
   cursor: pointer;
-  font-size: 14px;
 }
 
 .sv-modal-body {
   flex: 1;
 }
 
-.sv-modal-body iframe {
+.sv-modal-body #streetViewFull {
   width: 100%;
   height: 100%;
-  border: none;
 }
 
-/* ============================================
-   STATUS BAR
-============================================ */
+/* SEARCH */
+.search {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  align-items: center;
+}
+
+.search input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.6);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search button {
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.8);
+  color: var(--accent);
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--glow);
+}
+
+#langSelect {
+  padding: 9px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.8);
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* STATUS BAR */
 .status-bar {
   text-align: center;
   font-size: 12px;
-  padding: 4px;
   color: var(--muted);
+  padding-bottom: 4px;
 }
 
-/* ============================================
-   MAIN CARDS GRID
-============================================ */
+/* GRID */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -248,8 +246,7 @@ body {
   padding: 12px;
 }
 
-/* Single-column on mobile */
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .grid {
     grid-template-columns: 1fr;
   }
@@ -259,8 +256,8 @@ body {
   background: var(--card-bg);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  padding: 12px;
   box-shadow: var(--shadow);
+  padding: 12px;
 }
 
 .card.xl {
@@ -269,9 +266,9 @@ body {
 
 .card header h3 {
   font-size: 15px;
-  margin-bottom: 6px;
   color: var(--accent);
   text-shadow: var(--glow);
+  margin-bottom: 6px;
 }
 
 .card-body {
@@ -279,65 +276,130 @@ body {
   line-height: 1.5;
 }
 
-/* NAVIGATION */
+/* NAV CARD */
 .nav-fields {
   display: flex;
+  flex-direction: column;
   gap: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .nav-fields input {
-  flex: 1;
   padding: 8px;
   border-radius: var(--radius);
-  background: rgba(0,0,0,0.4);
   border: 1px solid var(--border);
+  background: rgba(0,0,0,0.45);
   color: var(--text);
 }
 
-.nav-fields button {
-  padding: 8px 12px;
-  border-radius: var(--radius);
+.nav-btns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.nav-btns button {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.75);
   color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.nav-info {
+  font-size: 13px;
+}
+
+/* BOOKING */
+.kv {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.kv strong {
+  color: #fff;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.8);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+/* WEATHER */
+.big {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* PHOTOS */
+.photo-thumb {
+  width: 100%;
+  border-radius: 14px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* PREMIUM SWITCH */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  font-size: 13px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  width: 34px;
+  height: 18px;
+  background: #111827;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  position: relative;
   cursor: pointer;
 }
 
-.nav-actions {
-  margin-top: 8px;
-  text-align: right;
+.slider::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--glow);
+  transition: transform 0.2s ease;
 }
 
-/* ============================================
-   PHOTOS GRID
-============================================ */
-.photo-thumb {
-  width: 100%;
-  border-radius: var(--radius);
-  margin-bottom: 6px;
-  border: 1px solid var(--border);
+.switch input:checked + .slider::before {
+  transform: translateX(14px);
 }
 
-/* ============================================
-   FOOTER
-============================================ */
+/* FOOTER */
 .foot {
   text-align: center;
   font-size: 12px;
-  padding: 20px;
+  padding: 18px;
   color: var(--muted);
-}
-
-/* ============================================
-   HUD MODE (MRAČNI NAVIGACIJSKI MOD) - Future
-============================================ */
-.hud-mode body {
-  background: #000;
-}
-
-.hud-mode .card,
-.hud-mode .streetview-bar {
-  background: rgba(0,0,0,0.4);
-  border-color: rgba(0,255,255,0.6);
 }
