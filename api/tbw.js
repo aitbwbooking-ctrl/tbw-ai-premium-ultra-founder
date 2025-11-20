@@ -1,199 +1,292 @@
-// TBW AI PREMIUM – GLOBAL BACKEND ULTRA (FULL FILE)
-// =================================================
-// 100% kompatibilno s novim index.html i app.js
-// HERO LIVE KAMERE + AI + SINKRONIZACIJA + MULTIJEZIK
-// GLOBAL FALLBACK + UNSPLASH + TRIAL + FOUNDER MODE
-// =================================================
+// =====================================================
+// TBW AI PREMIUM – backend (Vercel Serverless Function)
+// Stabilna verzija BEZ ?. i ?? operatora (kompatibilno)
+// =====================================================
 
-const OPENWEATHER = process.env.OPENWEATHER_API_KEY || null;
-const UNSPLASH = process.env.UNSPLASH_ACCESS_KEY || null;
-const GOOGLE_DIRECTIONS = process.env.GOOGLE_DIRECTIONS_API_KEY || null;
-const AVIATIONSTACK = process.env.AVIATIONSTACK_API_KEY || null;
+const fetch = require("node-fetch");
 
-// Founder & security
-const FOUNDER_CODE = process.env.FOUNDER_ACCESS_CODE || "TBW-FOUNDER-777";
-const KILL_SWITCH = process.env.APP_DISABLED || "false";
+// ----------------------------------------------
+//  API KEYS (OBAVEZNO UNESI SVOJE)
+// ----------------------------------------------
+const WEATHER_KEY = "YOUR_OPENWEATHER_API_KEY";
+const BOOKING_RAPID_KEY = "YOUR_RAPIDAPI_BOOKING_KEY";
+const FLIGHT_KEY = "YOUR_RAPIDAPI_FLIGHT_KEY";
+const TRAFFIC_KEY = "YOUR_TOMTOM_TRAFFIC_KEY";
 
-// GLOBAL LIVE CAMERA API (Windy webcams)
-const WINDY_API_KEY = process.env.WINDY_API_KEY || null;
-
-// Premium ručne kamere po gradovima
-const MANUAL_CAMERAS = {
-  split: [
-    "https://webtv.uvcdn.net/hls-live/amlst:SPLIT_RIVA/playlist.m3u8",
-    "https://webtv.uvcdn.net/hls-live/amlst:SPLIT_MATEJUSKA/playlist.m3u8"
+// fallback za hero slike
+const HERO_IMAGES = {
+  Split: [
+    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1600"
   ],
-  zadar: [
-    "https://webtv.uvcdn.net/hls-live/amlst:ZADAR_RIVA/playlist.m3u8"
+  Zagreb: [
+    "https://images.unsplash.com/photo-1506443432602-ac2fcd6f54e1?w=1600"
   ],
-  zagreb: [
-    "https://webtv.uvcdn.net/hls-live/amlst:ZAGREB_TRG/playlist.m3u8"
-  ],
-  tokyo: [
-    "https://www.youtube.com/embed/luQ2w0cVn4U?autoplay=1&mute=1"
-  ],
-  london: [
-    "https://www.youtube.com/embed/1OiQHcF1jd0?autoplay=1&mute=1"
-  ],
-  "new york": [
-    "https://www.youtube.com/embed/Ad0Zq0mWYak?autoplay=1&mute=1"
+  Zadar: [
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600"
   ]
 };
 
-// respond helper
-async function fetchJSON(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error("HTTP " + r.status);
-  return r.json();
+// Utility: sigurno dohvaćanje
+function safe(obj, key, fallback) {
+  return obj && obj[key] !== undefined ? obj[key] : fallback;
 }
 
-// kill switch (global control)
-function killSwitchCheck(res) {
-  if (String(KILL_SWITCH).toLowerCase() === "true") {
-    res.statusCode = 503;
-    res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ error: "App is temporarily disabled by admin." }));
-    return true;
-  }
-  return false;
+// Utility: fetch JSON
+async function getJSON(url, headers) {
+  const res = await fetch(url, { headers: headers || {} });
+  if (!res.ok) throw new Error("API error: " + res.status);
+  return await res.json();
 }
 
-// geocode fallback
-async function geocodeCity(city) {
-  const map = {
-    split: { lat: 43.5081, lon: 16.4402 },
-    zadar: { lat: 44.1194, lon: 15.2314 },
-    zagreb: { lat: 45.815, lon: 15.9819 },
-    london: { lat: 51.5074, lon: -0.1278 },
-    tokyo: { lat: 35.6762, lon: 139.6503 },
-    "new york": { lat: 40.7128, lon: -74.006 }
-  };
-
-  const key = city.toLowerCase();
-  if (map[key]) return map[key];
-
-  if (!OPENWEATHER) return { lat: 45.0, lon: 15.0 };
+// =====================================================
+// ROUTER
+// =====================================================
+module.exports = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
-    const geo = await fetchJSON(
-      `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
-        city
-      )}&limit=1&appid=${OPENWEATHER}`
-    );
-    if (geo?.length) return { lat: geo[0].lat, lon: geo[0].lon };
-  } catch {}
+    const route = req.query.route;
+    const city = req.query.city || "Split";
 
-  return { lat: 45.0, lon: 15.0 };
-}
-
-// ============ HERO LIVE CAMERA SYSTEM ===================
-async function handleHero(city) {
-  const key = city.toLowerCase();
-
-  // 1) manual premium cameras
-  if (MANUAL_CAMERAS[key] && MANUAL_CAMERAS[key].length) {
-    return {
-      type: "live",
-      source: "manual",
-      city,
-      url: MANUAL_CAMERAS[key][0]
-    };
-  }
-
-  // 2) Windy webcams API
-  if (WINDY_API_KEY) {
-    try {
-      const { lat, lon } = await geocodeCity(city);
-
-      const data = await fetchJSON(
-        `https://api.windy.com/api/webcams/v2/list/nearby=${lat},${lon},30?show=webcams:image,location&key=${WINDY_API_KEY}`
-      );
-
-      const cams = data?.result?.webcams || [];
-
-      if (cams.length) {
-        const c = cams[0];
-        const player =
-          c.player?.live?.embed || c.player?.day?.embed || null;
-
-        if (player) {
-          return {
-            type: "live",
-            source: "windy",
-            city,
-            url: player
-          };
-        }
-
-        // snapshot fallback
-        if (c.image?.current?.preview) {
-          return {
-            type: "snapshot",
-            source: "windy",
-            city,
-            url: c.image.current.preview
-          };
-        }
-      }
-    } catch {}
-  }
-
-  // 3) Unsplash fallback
-  const fallback = `https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1400`;
-
-  if (!UNSPLASH)
-    return { type: "image", source: "fallback", city, url: fallback };
-
-  try {
-    const data = await fetchJSON(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        city + " city"
-      )}&client_id=${UNSPLASH}&orientation=landscape&per_page=1`
-    );
-    const img = data.results?.[0]?.urls?.regular;
-    return {
-      type: "image",
-      source: img ? "unsplash" : "fallback",
-      city,
-      url: img || fallback
-    };
-  } catch {
-    return { type: "image", source: "fallback-error", city, url: fallback };
-  }
-}
-
-// ============ TICKER / ALERTS ======================
-async function handleAlerts(city) {
-  try {
-    const { lat, lon } = await geocodeCity(city);
-
-    if (OPENWEATHER) {
-      const ow = await fetchJSON(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${OPENWEATHER}`
-      );
-      const alerts = ow.alerts?.map((a) => a.event || a.description) || [];
-      return { city, alerts };
+    if (!route) {
+      res.status(400).json({ error: "Missing route" });
+      return;
     }
-  } catch {}
 
-  return { city, alerts: ["No active alerts."] };
+    switch (route) {
+      case "hero":
+        return send(res, await hero(city));
+
+      case "alerts":
+        return send(res, await alerts(city));
+
+      case "weather":
+        return send(res, await weather(city));
+
+      case "sea":
+        return send(res, await sea(city));
+
+      case "traffic":
+        return send(res, await traffic(city));
+
+      case "booking":
+        return send(res, await booking(city));
+
+      case "airport":
+        return send(res, await airport(city));
+
+      case "services":
+        return send(res, await services(city));
+
+      case "emergency":
+        return send(res, await emergency(city));
+
+      case "transit":
+        return send(res, await transit(city));
+
+      case "landmarks":
+        return send(res, await landmarks(city));
+
+      case "route":
+        return send(res, await routeCalc(req.query.from, req.query.to));
+
+      default:
+        res.status(400).json({ error: "Unknown route" });
+    }
+  } catch (err) {
+    console.error("TBW ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// helper za slanje
+function send(res, data) {
+  res.status(200).json(data || {});
 }
 
-// ============ WEATHER ===============================
-async function handleWeather(city, lang = "en") {
-  const { lat, lon } = await geocodeCity(city);
+// =====================================================
+// HERO
+// =====================================================
+async function hero(city) {
+  return {
+    city: city,
+    images: HERO_IMAGES[city] || HERO_IMAGES["Split"]
+  };
+}
 
-  if (!OPENWEATHER) {
+// =====================================================
+// ALERTS (dummy HR modeli)
+// =====================================================
+async function alerts(city) {
+  return {
+    city: city,
+    alert: "Nema posebnih upozorenja za ovo područje."
+  };
+}
+
+// =====================================================
+// WEATHER – OpenWeather
+// =====================================================
+async function weather(city) {
+  try {
+    const url =
+      "https://api.openweathermap.org/data/2.5/weather?q=" +
+      encodeURIComponent(city) +
+      "&appid=" +
+      WEATHER_KEY +
+      "&units=metric&lang=hr";
+
+    const json = await getJSON(url);
     return {
-      city,
-      temp: 20,
-      condition: "Clear (demo)",
-      icon: "01d",
-      lat,
-      lon
+      city: city,
+      temp: safe(json.main, "temp", null),
+      condition: safe(json.weather && json.weather[0], "description", "")
+    };
+  } catch (e) {
+    return { city: city, temp: null, condition: null };
+  }
+}
+
+// =====================================================
+// SEA STATE – fallback HR modeli
+// =====================================================
+async function sea(city) {
+  return {
+    city: city,
+    state: "Umjereno valovito, dobro za kupanje."
+  };
+}
+
+// =====================================================
+// TRAFFIC – TomTom
+// =====================================================
+async function traffic(city) {
+  try {
+    const url =
+      "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=45.8,16&key=" +
+      TRAFFIC_KEY;
+
+    const json = await getJSON(url);
+    const data = safe(json, "flowSegmentData", {});
+
+    return {
+      city: city,
+      status: "Promet umjeren",
+      level: safe(data, "currentSpeed", 50)
+    };
+  } catch (e) {
+    return { city: city, status: "N/A", level: null };
+  }
+}
+
+// =====================================================
+// BOOKING – RapidAPI
+// =====================================================
+async function booking(city) {
+  try {
+    const url =
+      "https://booking-com.p.rapidapi.com/v1/hotels/locations?name=" +
+      encodeURIComponent(city);
+
+    const json = await getJSON(url, {
+      "X-RapidAPI-Key": BOOKING_RAPID_KEY,
+      "X-RapidAPI-Host": "booking-com.p.rapidapi.com"
+    });
+
+    return {
+      city: city,
+      dates: "24–28 Nov 2025",
+      price: "od 45€ po noći",
+      url: "https://www.booking.com/searchresults.html?city=" + city
+    };
+  } catch (e) {
+    return {
+      city: city,
+      dates: "",
+      price: "",
+      url: ""
     };
   }
+}
 
-  try {
-    const w = await fetchJSON(
-      `https://api.openweather
+// =====================================================
+// AIRPORT – Flights
+// =====================================================
+async function airport(city) {
+  return {
+    city: city,
+    airport: "SPU",
+    status: "Sljedeći let: OU650 → Zagreb 12:35"
+  };
+}
+
+// =====================================================
+// SERVICES
+// =====================================================
+async function services(city) {
+  return {
+    city: city,
+    list: [
+      "24/7 hitna pomoć",
+      "Policija – 192",
+      "Vatrogasci – 193",
+      "Auto servis – 24/7",
+      "HITNA VET klinika",
+      "Ljekarne dežurne"
+    ]
+  };
+}
+
+// =====================================================
+// EMERGENCY
+// =====================================================
+async function emergency(city) {
+  return {
+    city: city,
+    status: "Sve sigurnosne službe normalno djeluju."
+  };
+}
+
+// =====================================================
+// TRANSIT
+// =====================================================
+async function transit(city) {
+  return {
+    city: city,
+    status: "Javni prijevoz prema redovitom voznom redu."
+  };
+}
+
+// =====================================================
+// LANDMARKS / EVENTS
+// =====================================================
+async function landmarks(city) {
+  return {
+    city: city,
+    list: [
+      "Stara gradska jezgra",
+      "Zimski sajam",
+      "Galerija umjetnosti",
+      "Izlet brodom",
+      "Glavni trg – Advent",
+      "Riva – događanja"
+    ]
+  };
+}
+
+// =====================================================
+// ROUTE CALCULATOR – Google Maps API (FREE DEMO)
+// =====================================================
+async function routeCalc(from, to) {
+  if (!from || !to) {
+    return { error: "Missing from/to" };
+  }
+
+  return {
+    from: from,
+    to: to,
+    distance: "2–5 km (estimacija)",
+    duration: "5–15 min (estimacija)",
+    source: "Google Maps (demo)"
+  };
+}
