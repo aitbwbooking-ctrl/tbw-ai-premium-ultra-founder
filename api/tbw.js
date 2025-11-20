@@ -1,5 +1,5 @@
 // TBW AI PREMIUM – BACKEND ULTRA (ONE ENDPOINT)
-// Sve ide preko /api/tbw?route=...&city=...&lang=...
+// /api/tbw?route=...&city=...&lang=...
 
 const OPENWEATHER = process.env.OPENWEATHER_API_KEY || null;
 const TOMTOM = process.env.TOMTOM_API_KEY || null;
@@ -13,7 +13,6 @@ const GOOGLE_PLACES = process.env.GOOGLE_PLACES_API_KEY || null;
 
 const AMPEL = process.env.AMPEL_ACCESS_TOKEN || null;
 
-// -------- HELPER --------
 async function fetchJSON(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(`HTTP ${res.status} → ${url}`);
@@ -44,8 +43,8 @@ async function geocodeCity(city = "Split") {
   return staticMap[city.toLowerCase()] || staticMap.zagreb;
 }
 
-// -------- HERO --------
-async function handleHero(city, lang) {
+// HERO
+async function handleHero(city) {
   const fallback = [
     "https://images.unsplash.com/photo-1505852679233-d9fd70aff56d?w=1200",
     "https://images.unsplash.com/photo-1493558103817-58b6727a0408?w=1200",
@@ -56,7 +55,7 @@ async function handleHero(city, lang) {
   try {
     const data = await fetchJSON(
       `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        city + " city skyline"
+        city + " night city"
       )}&orientation=landscape&client_id=${UNSPLASH}&per_page=6`
     );
     const images =
@@ -72,12 +71,9 @@ async function handleHero(city, lang) {
   }
 }
 
-// -------- ALERTS / TIKER --------
+// ALERTS / TIKER
 async function handleAlerts(city, lang) {
-  const t = (hr, en, de, fr, it, es, cs, hu) => {
-    const map = { hr, en, de, fr, it, es, cs, hu };
-    return map[lang] || en;
-  };
+  const t = (hr, en) => (lang === "hr" ? hr : en);
 
   try {
     if (OPENWEATHER) {
@@ -89,24 +85,12 @@ async function handleAlerts(city, lang) {
         const a = ow.alerts[0];
         return {
           city,
-          alert:
-            a.event ||
-            a.description ||
-            t(
-              "Aktivno vremensko upozorenje.",
-              "Active weather alert.",
-              "Aktive Wetterwarnung.",
-              "Alerte météo active.",
-              "Allerta meteo attiva.",
-              "Alerta meteorológica activa.",
-              "Aktivní výstraha počasí.",
-              "Aktív időjárási figyelmeztetés."
-            )
+          alert: a.event || a.description || t("Aktivno vremensko upozorenje.", "Active weather alert.")
         };
       }
     }
   } catch (e) {
-    console.error("alerts", e.message);
+    console.error("alerts-ow", e.message);
   }
 
   if (AMPEL) {
@@ -124,27 +108,21 @@ async function handleAlerts(city, lang) {
 
   return {
     city,
-    alert: t(
-      "Nema posebnih upozorenja. Ugodan put! ✅",
-      "No special alerts. Have a safe trip! ✅",
-      "Keine besonderen Warnungen. Gute Fahrt! ✅",
-      "Aucune alerte particulière. Bon voyage ! ✅",
-      "Nessuna allerta particolare. Buon viaggio! ✅",
-      "Sin alertas especiales. ¡Buen viaje! ✅",
-      "Žádná zvláštní varování. Šťastnou cestu! ✅",
-      "Nincs különleges riasztás. Jó utat! ✅"
-    )
+    alert: t("Nema posebnih upozorenja. Ugodan put! ✅", "No special alerts. Have a safe trip! ✅")
   };
 }
 
-// -------- WEATHER --------
+// WEATHER (vraca i lat/lon za StreetView)
 async function handleWeather(city, lang) {
   if (!OPENWEATHER) {
+    const coords = await geocodeCity(city);
     return {
       city,
       temp: 22,
       condition: lang === "hr" ? "Sunčano (demo)" : "Sunny (demo)",
       icon: "01d",
+      lat: coords.lat,
+      lon: coords.lon,
       source: "fallback"
     };
   }
@@ -158,27 +136,30 @@ async function handleWeather(city, lang) {
       temp: Math.round(data.main?.temp ?? 0),
       condition: data.weather?.[0]?.description || "Unknown",
       icon: data.weather?.[0]?.icon || "01d",
+      lat,
+      lon,
       source: "openweather"
     };
   } catch (e) {
     console.error("weather", e.message);
+    const coords = await geocodeCity(city);
     return {
       city,
       temp: 0,
       condition: "Error loading weather.",
       icon: "01d",
+      lat: coords.lat,
+      lon: coords.lon,
       source: "fallback-error"
     };
   }
 }
 
-// -------- SEA --------
-async function handleSea(city, lang) {
+// SEA
+async function handleSea(city) {
   try {
     const { lat, lon } = await geocodeCity(city);
-    if (!OPENWEATHER) {
-      return { city, state: "Calm sea (demo)." };
-    }
+    if (!OPENWEATHER) return { city, state: "Calm sea (demo fallback)." };
     const data = await fetchJSON(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER}`
     );
@@ -195,8 +176,8 @@ async function handleSea(city, lang) {
   }
 }
 
-// -------- TRAFFIC --------
-async function handleTraffic(city, lang) {
+// TRAFFIC
+async function handleTraffic(city) {
   try {
     if (TOMTOM) {
       const { lat, lon } = await geocodeCity(city);
@@ -236,7 +217,7 @@ async function handleTraffic(city, lang) {
   };
 }
 
-// -------- ROUTE --------
+// ROUTE
 async function handleRoute(from, to) {
   if (!from || !to) {
     return {
@@ -301,7 +282,7 @@ async function handleRoute(from, to) {
   };
 }
 
-// -------- BOOKING --------
+// BOOKING
 async function handleBooking(city) {
   const today = new Date();
   const start = new Date(today.getTime() + 3 * 86400000);
@@ -321,7 +302,7 @@ async function handleBooking(city) {
   };
 }
 
-// -------- AIRPORT --------
+// AIRPORT
 async function handleAirport(city) {
   const map = {
     split: "SPU",
@@ -373,7 +354,7 @@ async function handleAirport(city) {
   }
 }
 
-// -------- SERVICES --------
+// SERVICES
 async function handleServices(city) {
   if (!GOOGLE_PLACES)
     return {
@@ -412,9 +393,12 @@ async function handleServices(city) {
   }
 }
 
-// -------- EMERGENCY --------
+// EMERGENCY
 async function handleEmergency(city, lang) {
-  const base = "In emergencies, call 112 (EU emergency number).";
+  const base =
+    lang === "hr"
+      ? "U hitnim slučajevima nazovi 112 (jedinstveni europski broj)."
+      : "In emergencies, call 112 (EU emergency number).";
   try {
     const alerts = await handleAlerts(city, lang);
     if (
@@ -430,13 +414,10 @@ async function handleEmergency(city, lang) {
   } catch (e) {
     console.error("emergency", e.message);
   }
-  return {
-    city,
-    status: `${base} No special alerts at the moment.`
-  };
+  return { city, status: `${base} No special alerts at the moment.` };
 }
 
-// -------- TRANSIT --------
+// TRANSIT
 async function handleTransit(city) {
   return {
     city,
@@ -446,7 +427,7 @@ async function handleTransit(city) {
   };
 }
 
-// -------- LANDMARKS --------
+// LANDMARKS
 async function handleLandmarks(city) {
   if (!OPENTRIPMAP) {
     const fb = {
@@ -490,7 +471,7 @@ async function handleLandmarks(city) {
   }
 }
 
-// -------- PHOTOS --------
+// PHOTOS
 async function handlePhotos(city) {
   const fallback = [
     "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
@@ -517,7 +498,7 @@ async function handlePhotos(city) {
   }
 }
 
-// -------- META (trial, cijene, jezici) --------
+// META
 function handleMeta() {
   return {
     appName: "TBW AI PREMIUM – Travel Navigator ULTRA",
@@ -531,7 +512,7 @@ function handleMeta() {
   };
 }
 
-// =============== MAIN HANDLER =================
+// MAIN HANDLER
 module.exports = async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const route = url.searchParams.get("route") || "hero";
@@ -545,7 +526,6 @@ module.exports = async (req, res) => {
 
   try {
     let payload;
-
     switch (route) {
       case "hero":
         payload = await handleHero(city, lang);
@@ -557,10 +537,10 @@ module.exports = async (req, res) => {
         payload = await handleWeather(city, lang);
         break;
       case "sea":
-        payload = await handleSea(city, lang);
+        payload = await handleSea(city);
         break;
       case "traffic":
-        payload = await handleTraffic(city, lang);
+        payload = await handleTraffic(city);
         break;
       case "route":
         payload = await handleRoute(from || city, to || "Split");
