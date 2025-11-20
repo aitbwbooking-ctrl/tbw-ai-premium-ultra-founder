@@ -1,7 +1,6 @@
-// TBW AI PREMIUM – ONE ROUTE BACKEND ULTRA
-// Sve ide preko /api/tbw?route=...&city=...
+// TBW AI PREMIUM – BACKEND ULTRA (ONE ENDPOINT)
+// Sve ide preko /api/tbw?route=...&city=...&lang=...
 
-// =============== ENV VARS =====================
 const OPENWEATHER = process.env.OPENWEATHER_API_KEY || null;
 const TOMTOM = process.env.TOMTOM_API_KEY || null;
 const UNSPLASH = process.env.UNSPLASH_ACCESS_KEY || null;
@@ -14,15 +13,13 @@ const GOOGLE_PLACES = process.env.GOOGLE_PLACES_API_KEY || null;
 
 const AMPEL = process.env.AMPEL_ACCESS_TOKEN || null;
 
-// =============== HELPERI ======================
-
+// -------- HELPER --------
 async function fetchJSON(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(`HTTP ${res.status} → ${url}`);
   return res.json();
 }
 
-// Geocode
 async function geocodeCity(city = "Split") {
   const staticMap = {
     split: { lat: 43.5081, lon: 16.4402 },
@@ -32,7 +29,6 @@ async function geocodeCity(city = "Split") {
     pula: { lat: 44.8666, lon: 13.8496 },
     dubrovnik: { lat: 42.6507, lon: 18.0944 }
   };
-
   if (!OPENWEATHER) return staticMap[city.toLowerCase()] || staticMap.zagreb;
 
   try {
@@ -41,63 +37,77 @@ async function geocodeCity(city = "Split") {
         city
       )}&limit=1&appid=${OPENWEATHER}`
     );
-
     if (geo?.length) return { lat: geo[0].lat, lon: geo[0].lon };
-  } catch {}
-
+  } catch (e) {
+    console.error("geocodeCity", e.message);
+  }
   return staticMap[city.toLowerCase()] || staticMap.zagreb;
 }
 
-// =============== ROUTES ======================
-
-// HERO
-async function handleHero(city) {
+// -------- HERO --------
+async function handleHero(city, lang) {
   const fallback = [
     "https://images.unsplash.com/photo-1505852679233-d9fd70aff56d?w=1200",
     "https://images.unsplash.com/photo-1493558103817-58b6727a0408?w=1200",
     "https://images.unsplash.com/photo-1521545397978-5ea2c6688880?w=1200"
   ];
-
   if (!UNSPLASH) return { city, images: fallback, source: "fallback" };
 
   try {
     const data = await fetchJSON(
       `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        city + " travel"
+        city + " city skyline"
       )}&orientation=landscape&client_id=${UNSPLASH}&per_page=6`
     );
-
-    const images = data.results
-      ?.map((p) => p.urls?.regular)
-      .filter(Boolean);
-
+    const images =
+      data.results?.map((p) => p.urls?.regular).filter(Boolean) || [];
     return {
       city,
-      images: images?.length ? images : fallback,
-      source: images?.length ? "unsplash" : "fallback-empty"
+      images: images.length ? images : fallback,
+      source: images.length ? "unsplash" : "fallback-empty"
     };
-  } catch {
+  } catch (e) {
+    console.error("hero", e.message);
     return { city, images: fallback, source: "fallback-error" };
   }
 }
 
-// ALERTS
-async function handleAlerts(city) {
+// -------- ALERTS / TIKER --------
+async function handleAlerts(city, lang) {
+  const t = (hr, en, de, fr, it, es, cs, hu) => {
+    const map = { hr, en, de, fr, it, es, cs, hu };
+    return map[lang] || en;
+  };
+
   try {
     if (OPENWEATHER) {
       const { lat, lon } = await geocodeCity(city);
-
       const ow = await fetchJSON(
-        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${OPENWEATHER}&lang=hr`
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${OPENWEATHER}&lang=${lang || "en"}`
       );
-
       if (ow.alerts?.length) {
         const a = ow.alerts[0];
-        const msg = a.event || a.description || "Vremensko upozorenje.";
-        return { city, alert: msg };
+        return {
+          city,
+          alert:
+            a.event ||
+            a.description ||
+            t(
+              "Aktivno vremensko upozorenje.",
+              "Active weather alert.",
+              "Aktive Wetterwarnung.",
+              "Alerte météo active.",
+              "Allerta meteo attiva.",
+              "Alerta meteorológica activa.",
+              "Aktivní výstraha počasí.",
+              "Aktív időjárási figyelmeztetés."
+            )
+        };
       }
     }
-  } catch {}
+  } catch (e) {
+    console.error("alerts", e.message);
+  }
 
   if (AMPEL) {
     try {
@@ -107,137 +117,137 @@ async function handleAlerts(city) {
         )}&token=${AMPEL}`
       );
       if (data.message) return { city, alert: data.message };
-    } catch {}
+    } catch (e) {
+      console.error("alerts-ampel", e.message);
+    }
   }
 
   return {
     city,
-    alert: "Nema posebnih sigurnosnih upozorenja za ovo područje. ✅"
+    alert: t(
+      "Nema posebnih upozorenja. Ugodan put! ✅",
+      "No special alerts. Have a safe trip! ✅",
+      "Keine besonderen Warnungen. Gute Fahrt! ✅",
+      "Aucune alerte particulière. Bon voyage ! ✅",
+      "Nessuna allerta particolare. Buon viaggio! ✅",
+      "Sin alertas especiales. ¡Buen viaje! ✅",
+      "Žádná zvláštní varování. Šťastnou cestu! ✅",
+      "Nincs különleges riasztás. Jó utat! ✅"
+    )
   };
 }
 
-// WEATHER
-async function handleWeather(city) {
-  if (!OPENWEATHER)
+// -------- WEATHER --------
+async function handleWeather(city, lang) {
+  if (!OPENWEATHER) {
     return {
       city,
       temp: 22,
-      condition: "Sunčano (demo)",
+      condition: lang === "hr" ? "Sunčano (demo)" : "Sunny (demo)",
       icon: "01d",
       source: "fallback"
     };
-
+  }
   try {
     const { lat, lon } = await geocodeCity(city);
     const data = await fetchJSON(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=hr&appid=${OPENWEATHER}`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=${lang || "en"}&appid=${OPENWEATHER}`
     );
-
     return {
       city: data.name || city,
       temp: Math.round(data.main?.temp ?? 0),
-      condition: data.weather?.[0]?.description || "Nepoznato",
+      condition: data.weather?.[0]?.description || "Unknown",
       icon: data.weather?.[0]?.icon || "01d",
       source: "openweather"
     };
-  } catch {
+  } catch (e) {
+    console.error("weather", e.message);
     return {
       city,
       temp: 0,
-      condition: "Greška pri učitavanju prognoze.",
+      condition: "Error loading weather.",
       icon: "01d",
       source: "fallback-error"
     };
   }
 }
 
-// SEA
-async function handleSea(city) {
+// -------- SEA --------
+async function handleSea(city, lang) {
   try {
     const { lat, lon } = await geocodeCity(city);
-
-    if (!OPENWEATHER)
-      return { city, state: "Mirno more (demo fallback)." };
-
+    if (!OPENWEATHER) {
+      return { city, state: "Calm sea (demo)." };
+    }
     const data = await fetchJSON(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=hr&appid=${OPENWEATHER}`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER}`
     );
-
     const wind = data.wind?.speed ?? 0;
-
-    const state =
-      wind < 3
-        ? "More mirno, idealno za kupanje."
-        : wind < 8
-        ? "Lagani valovi, ugodno."
-        : wind < 14
-        ? "Umjereni valovi – oprez."
-        : "Jako valovito – ne preporučuje se kupanje.";
-
-    return { city, state };
-  } catch {
-    return { city, state: "Greška pri učitavanju stanja mora." };
+    let state;
+    if (wind < 3) state = "Calm sea, ideal for swimming.";
+    else if (wind < 8) state = "Light waves, pleasant but use caution.";
+    else if (wind < 14) state = "Moderate waves – increased caution.";
+    else state = "Rough sea – not recommended for swimming.";
+    return { city: data.name || city, state };
+  } catch (e) {
+    console.error("sea", e.message);
+    return { city, state: "Error loading sea state." };
   }
 }
 
-// TRAFFIC (❗ fixed syntax)
-async function handleTraffic(city) {
+// -------- TRAFFIC --------
+async function handleTraffic(city, lang) {
   try {
     if (TOMTOM) {
       const { lat, lon } = await geocodeCity(city);
-
       const data = await fetchJSON(
         `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?key=${TOMTOM}&point=${lat},${lon}`
       );
-
-      const cur = data.flowSegmentData?.currentSpeed ?? 1;
+      const curRaw = data.flowSegmentData?.currentSpeed;
+      const cur = typeof curRaw === "number" ? curRaw : 1;
       const freeRaw = data.flowSegmentData?.freeFlowSpeed;
       const free = typeof freeRaw === "number" ? freeRaw : cur || 1;
-
       const ratio = cur / free;
 
-      const level =
-        ratio > 0.9
-          ? "LOW"
-          : ratio > 0.7
-          ? "MEDIUM"
-          : ratio > 0.4
-          ? "HIGH"
-          : "CRITICAL";
-
-      const status =
-        level === "LOW"
-          ? "Promet teče normalno."
-          : level === "MEDIUM"
-          ? "Umjereno gust promet."
-          : level === "HIGH"
-          ? "Gusti promet, usporavanja."
-          : "Vrlo gust promet i zastoji.";
-
+      let level, status;
+      if (ratio > 0.9) {
+        level = "LOW";
+        status = "Traffic is flowing normally.";
+      } else if (ratio > 0.7) {
+        level = "MEDIUM";
+        status = "Moderate traffic, some slow-downs.";
+      } else if (ratio > 0.4) {
+        level = "HIGH";
+        status = "Heavy traffic, expect delays.";
+      } else {
+        level = "CRITICAL";
+        status = "Very heavy traffic and jams.";
+      }
       return { city, status, level, source: "tomtom" };
     }
-  } catch {}
-
+  } catch (e) {
+    console.error("traffic", e.message);
+  }
   return {
     city,
-    status: "Nema dostupnih podataka o prometu.",
+    status: "No traffic data available.",
     level: "UNKNOWN",
     source: "fallback"
   };
 }
 
-// ROUTE
+// -------- ROUTE --------
 async function handleRoute(from, to) {
-  if (!from || !to)
+  if (!from || !to) {
     return {
       from,
       to,
-      distance: "Nepoznato",
-      duration: "Nepoznato",
+      distance: "Unknown",
+      duration: "Unknown",
       source: "invalid"
     };
+  }
 
-  // Google Directions
   if (GOOGLE_DIRECTIONS) {
     try {
       const data = await fetchJSON(
@@ -245,9 +255,8 @@ async function handleRoute(from, to) {
           from
         )}&destination=${encodeURIComponent(to)}&key=${GOOGLE_DIRECTIONS}`
       );
-
       const leg = data.routes?.[0]?.legs?.[0];
-      if (leg)
+      if (leg) {
         return {
           from,
           to,
@@ -255,10 +264,12 @@ async function handleRoute(from, to) {
           duration: leg.duration?.text,
           source: "google-directions"
         };
-    } catch {}
+      }
+    } catch (e) {
+      console.error("route-directions", e.message);
+    }
   }
 
-  // Distance Matrix fallback
   if (GOOGLE_DISTANCE) {
     try {
       const dm = await fetchJSON(
@@ -266,10 +277,8 @@ async function handleRoute(from, to) {
           from
         )}&destinations=${encodeURIComponent(to)}&key=${GOOGLE_DISTANCE}`
       );
-
       const el = dm.rows?.[0]?.elements?.[0];
-
-      if (el?.status === "OK")
+      if (el?.status === "OK") {
         return {
           from,
           to,
@@ -277,33 +286,34 @@ async function handleRoute(from, to) {
           duration: el.duration?.text,
           source: "google-distance-matrix"
         };
-    } catch {}
+      }
+    } catch (e) {
+      console.error("route-distance", e.message);
+    }
   }
 
   return {
     from,
     to,
-    distance: "2–5 h (procjena)",
-    duration: "Provjeri Google Maps.",
+    distance: "2–5 h (estimate)",
+    duration: "Check Google Maps for details.",
     source: "fallback"
   };
 }
 
-// BOOKING
+// -------- BOOKING --------
 async function handleBooking(city) {
   const today = new Date();
   const start = new Date(today.getTime() + 3 * 86400000);
   const end = new Date(today.getTime() + 6 * 86400000);
-
   const fmt = (d) =>
     `${String(d.getDate()).padStart(2, "0")}.${String(
       d.getMonth() + 1
     ).padStart(2, "0")}.`;
-
   return {
     city,
     dates: `${fmt(start)} – ${fmt(end)}`,
-    price: "od 45 € / noć (procjena)",
+    price: "from 45 € / night (estimate)",
     url: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
       city
     )}`,
@@ -311,7 +321,7 @@ async function handleBooking(city) {
   };
 }
 
-// AIRPORT
+// -------- AIRPORT --------
 async function handleAirport(city) {
   const map = {
     split: "SPU",
@@ -321,235 +331,236 @@ async function handleAirport(city) {
     pula: "PUY",
     dubrovnik: "DBV"
   };
-
   const iata = map[city.toLowerCase()];
-
-  if (!AVIATIONSTACK || !iata)
+  if (!AVIATIONSTACK || !iata) {
     return {
       city,
       airport: iata || "N/A",
-      status: "Informacije o letovima nisu dostupne.",
+      status: "Flight info not available.",
       source: "fallback"
     };
-
+  }
   try {
     const data = await fetchJSON(
       `http://api.aviationstack.com/v1/flights?access_key=${AVIATIONSTACK}&dep_iata=${iata}&limit=5`
     );
-
     const flights = data.data || [];
-
-    if (!flights.length)
+    if (!flights.length) {
       return {
         city,
         airport: iata,
-        status: "Nema aktivnih odlaznih letova.",
+        status: "No active departing flights.",
         source: "aviationstack"
       };
-
+    }
     const f = flights[0];
-
     return {
       city,
       airport: iata,
-      status: `Sljedeći let: ${f.flight?.iata} → ${
+      status: `Next flight: ${f.flight?.iata} → ${
         f.arrival?.airport
-      } u ${f.departure?.scheduled?.slice(11, 16)}`,
+      } at ${f.departure?.scheduled?.slice(11, 16)}`,
       source: "aviationstack"
     };
-  } catch {
+  } catch (e) {
+    console.error("airport", e.message);
     return {
       city,
       airport: iata,
-      status: "Greška pri učitavanju letova.",
+      status: "Error loading flights.",
       source: "fallback-error"
     };
   }
 }
 
-// SERVICES
+// -------- SERVICES --------
 async function handleServices(city) {
   if (!GOOGLE_PLACES)
     return {
       city,
       list: [
-        "112 Hitne službe (24/7)",
-        "Lokalne benzinske",
-        "Taxi usluge dostupne"
+        "112 – Emergency 24/7",
+        "Local fuel stations",
+        "Taxi & ride services"
       ],
       source: "fallback"
     };
-
   try {
-    const query = `service stations in ${city}`;
+    const query = `emergency services in ${city}`;
     const data = await fetchJSON(
       `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
         query
       )}&key=${GOOGLE_PLACES}`
     );
-
-    const list = data.results
-      ?.slice(0, 6)
-      .map((p) => p.name)
-      .filter(Boolean);
-
+    const list =
+      data.results
+        ?.slice(0, 6)
+        .map((p) => p.name)
+        .filter(Boolean) || [];
     return {
       city,
-      list: list?.length ? list : ["Nema rezultata."],
+      list: list.length ? list : ["No nearby services found."],
       source: "google-places"
     };
-  } catch {
+  } catch (e) {
+    console.error("services", e.message);
     return {
       city,
-      list: ["Greška pri učitavanju podataka."],
+      list: ["Error loading services."],
       source: "fallback-error"
     };
   }
 }
 
-// EMERGENCY
-async function handleEmergency(city) {
-  const base =
-    "U hitnim slučajevima nazovi 112 (europski broj za hitne službe).";
-
+// -------- EMERGENCY --------
+async function handleEmergency(city, lang) {
+  const base = "In emergencies, call 112 (EU emergency number).";
   try {
-    const alerts = await handleAlerts(city);
-
+    const alerts = await handleAlerts(city, lang);
     if (
       alerts.alert &&
+      !alerts.alert.includes("No special alerts") &&
       !alerts.alert.includes("Nema posebnih")
     ) {
       return {
         city,
-        status: `${base} Trenutno upozorenje: ${alerts.alert}`
+        status: `${base} Current alert: ${alerts.alert}`
       };
     }
-  } catch {}
-
-  return { city, status: base + " Trenutno nema posebnih upozorenja." };
+  } catch (e) {
+    console.error("emergency", e.message);
+  }
+  return {
+    city,
+    status: `${base} No special alerts at the moment.`
+  };
 }
 
-// TRANSIT
+// -------- TRANSIT --------
 async function handleTransit(city) {
   return {
     city,
     status:
-      "Javni prijevoz prometuje prema uobičajenom/izmijenjenom rasporedu.",
+      "Public transport operates with regular/modified schedule. Check local operator.",
     source: "fallback"
   };
 }
 
-// LANDMARKS
+// -------- LANDMARKS --------
 async function handleLandmarks(city) {
   if (!OPENTRIPMAP) {
     const fb = {
-      split: ["Dioklecijanova palača", "Riva", "Marjan"],
-      zagreb: ["Ban Jelačić", "Katedrala", "Tkalča"],
-      dubrovnik: ["Zidine", "Stradun", "Lokrum"]
+      split: ["Diocletian's Palace", "Riva", "Marjan"],
+      zagreb: ["Ban Jelačić Square", "Cathedral", "Tkalčićeva"],
+      dubrovnik: ["City Walls", "Stradun", "Lokrum"]
     };
-
     return {
       city,
-      list: fb[city.toLowerCase()] || ["Glavne znamenitosti."],
+      list: fb[city.toLowerCase()] || ["Main local landmarks."],
       source: "fallback"
     };
   }
-
   try {
     const geo = await fetchJSON(
       `https://api.opentripmap.com/0.1/en/places/geoname?name=${encodeURIComponent(
         city
       )}&apikey=${OPENTRIPMAP}`
     );
-
     const { lat, lon } = geo;
-
     const places = await fetchJSON(
       `https://api.opentripmap.com/0.1/en/places/radius?radius=3000&lon=${lon}&lat=${lat}&rate=2&limit=10&format=json&apikey=${OPENTRIPMAP}`
     );
-
-    const list = places
-      ?.map((p) => p.name)
-      .filter(Boolean)
-      .slice(0, 8);
-
+    const list =
+      places
+        ?.map((p) => p.name)
+        .filter(Boolean)
+        .slice(0, 8) || [];
     return {
       city,
-      list: list?.length ? list : ["Nema znamenitosti."],
+      list: list.length ? list : ["No landmarks found."],
       source: "opentripmap"
     };
-  } catch {
+  } catch (e) {
+    console.error("landmarks", e.message);
     return {
       city,
-      list: ["Greška kod OpenTripMap."],
+      list: ["Error loading landmarks."],
       source: "fallback-error"
     };
   }
 }
 
-// PHOTOS
+// -------- PHOTOS --------
 async function handlePhotos(city) {
   const fallback = [
     "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
     "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=800",
     "https://images.unsplash.com/photo-1421809313281-48f03fa45e9f?w=800"
   ];
-
   if (!UNSPLASH) return { city, images: fallback, source: "fallback" };
-
   try {
     const data = await fetchJSON(
       `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        city + " city"
+        city + " travel"
       )}&orientation=landscape&client_id=${UNSPLASH}&per_page=9`
     );
-
-    const images = data.results
-      ?.map((p) => p.urls?.small)
-      .filter(Boolean);
-
+    const images =
+      data.results?.map((p) => p.urls?.small).filter(Boolean) || [];
     return {
       city,
-      images: images?.length ? images : fallback,
-      source: images?.length ? "unsplash" : "fallback-empty"
+      images: images.length ? images : fallback,
+      source: images.length ? "unsplash" : "fallback-empty"
     };
-  } catch {
+  } catch (e) {
+    console.error("photos", e.message);
     return { city, images: fallback, source: "fallback-error" };
   }
 }
 
-// =============== MAIN HANDLER =================
+// -------- META (trial, cijene, jezici) --------
+function handleMeta() {
+  return {
+    appName: "TBW AI PREMIUM – Travel Navigator ULTRA",
+    trialDays: 7,
+    prices: {
+      monthly_eur: 4.99,
+      yearly_eur: 39.99
+    },
+    languages: ["hr", "en", "de", "fr", "it", "es", "cs", "hu"],
+    founderAlwaysPremium: true
+  };
+}
 
+// =============== MAIN HANDLER =================
 module.exports = async (req, res) => {
   const url = new URL(req.url, "http://localhost");
-
   const route = url.searchParams.get("route") || "hero";
   const city =
     url.searchParams.get("city") ||
     url.searchParams.get("q") ||
     "Split";
-
   const from = url.searchParams.get("from");
   const to = url.searchParams.get("to");
+  const lang = url.searchParams.get("lang") || "hr";
 
   try {
     let payload;
 
     switch (route) {
       case "hero":
-        payload = await handleHero(city);
+        payload = await handleHero(city, lang);
         break;
       case "alerts":
-        payload = await handleAlerts(city);
+        payload = await handleAlerts(city, lang);
         break;
       case "weather":
-        payload = await handleWeather(city);
+        payload = await handleWeather(city, lang);
         break;
       case "sea":
-        payload = await handleSea(city);
+        payload = await handleSea(city, lang);
         break;
       case "traffic":
-        payload = await handleTraffic(city);
+        payload = await handleTraffic(city, lang);
         break;
       case "route":
         payload = await handleRoute(from || city, to || "Split");
@@ -564,7 +575,7 @@ module.exports = async (req, res) => {
         payload = await handleServices(city);
         break;
       case "emergency":
-        payload = await handleEmergency(city);
+        payload = await handleEmergency(city, lang);
         break;
       case "transit":
         payload = await handleTransit(city);
@@ -575,12 +586,15 @@ module.exports = async (req, res) => {
       case "photos":
         payload = await handlePhotos(city);
         break;
+      case "meta":
+        payload = handleMeta();
+        break;
       default:
         payload = {
           error: "Unknown route",
           route,
           supported:
-            "hero, alerts, weather, sea, traffic, route, booking, airport, services, emergency, transit, landmarks, photos"
+            "hero, alerts, weather, sea, traffic, route, booking, airport, services, emergency, transit, landmarks, photos, meta"
         };
     }
 
@@ -588,6 +602,7 @@ module.exports = async (req, res) => {
     res.statusCode = 200;
     res.end(JSON.stringify(payload));
   } catch (err) {
+    console.error("TBW API FATAL:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(
